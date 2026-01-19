@@ -12,7 +12,7 @@ export default function AuthPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // 🔥 Empêche le rechargement de la page
+    e.preventDefault();
     setError(null);
     setSuccess(null);
 
@@ -44,7 +44,6 @@ export default function AuthPage() {
 
       setSuccess("Inscription réussie 🎉");
 
-      // (Optionnel) Réinitialiser le formulaire
       setEmail("");
       setUsername("");
       setPassword("");

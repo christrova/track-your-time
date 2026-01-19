@@ -1,11 +1,10 @@
 'use client'
 
+import { supabase } from "@/lib/supabaseclient";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function AuthPage() {
-  const router = useRouter();
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,7 +12,7 @@ export default function AuthPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const handleSignin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // 🔥 Empêche le rechargement de la page
+    e.preventDefault();
     setError(null);
     setSuccess(null);
 
@@ -38,20 +37,32 @@ export default function AuthPage() {
 
       const data = await res.json();
 
-      console.log("data from connexion=>>", data)
-
       if (!res.ok) {
         throw new Error(data.message || "Connexion error");
       }
 
-      setSuccess("Connexion success 🎉");
 
-      // (Optionnel) Réinitialiser le formulaire
       setEmail("");
       setPassword("");
-      
-      // Redirect to dashboard
-      router.replace('/dashboard');
+
+      if (data.session) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+
+        if (sessionError) {
+          console.error("Error setting session:", sessionError);
+          throw new Error("Failed to set session");
+        }
+
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!currentSession) {
+          throw new Error("Session not available after setting");
+        }
+      }
+
+      window.location.href = '/dashboard';
 
     } catch (err: any) {
       setError(err.message);
@@ -64,8 +75,8 @@ export default function AuthPage() {
     <div className="flex w-full h-screen justify-center items-center text-2xl flex-col gap-6">
       <h1 className="text-3xl font-bold">Inscription</h1>
 
-      <form 
-        onSubmit={handleSignin} 
+      <form
+        onSubmit={handleSignin}
         className="flex flex-col gap-4 border p-6 rounded-lg shadow-md"
       >
         <div>
