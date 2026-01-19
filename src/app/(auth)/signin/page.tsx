@@ -6,17 +6,16 @@ import { useState } from "react";
 export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // 🔥 Empêche le rechargement de la page
     setError(null);
     setSuccess(null);
 
-    if (!password || !email || !username) {
+    if (!password || !email) {
       setError("Tous les champs sont obligatoires.");
       return;
     }
@@ -24,29 +23,29 @@ export default function AuthPage() {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
-          username,
           password,
         }),
       });
 
       const data = await res.json();
 
+      console.log("data from connexion=>>", data)
+
       if (!res.ok) {
-        throw new Error(data.message || "Erreur lors de l'inscription");
+        throw new Error(data.message || "Connexion error");
       }
 
-      setSuccess("Inscription réussie 🎉");
+      setSuccess("Connexion success 🎉");
 
       // (Optionnel) Réinitialiser le formulaire
       setEmail("");
-      setUsername("");
       setPassword("");
 
     } catch (err: any) {
@@ -61,7 +60,7 @@ export default function AuthPage() {
       <h1 className="text-3xl font-bold">Inscription</h1>
 
       <form 
-        onSubmit={handleSignup} 
+        onSubmit={handleSignin} 
         className="flex flex-col gap-4 border p-6 rounded-lg shadow-md"
       >
         <div>
@@ -86,17 +85,6 @@ export default function AuthPage() {
           />
         </div>
 
-        <div>
-          <p>Nom d'utilisateur</p>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            className="border p-2 text-black"
-          />
-        </div>
-
         {error && <p className="text-red-500">{error}</p>}
         {success && <p className="text-green-500">{success}</p>}
 
@@ -105,7 +93,7 @@ export default function AuthPage() {
           disabled={loading}
           className="bg-blue-500 text-white p-2 rounded mt-2 disabled:bg-gray-400"
         >
-          {loading ? "Inscription..." : "S'inscrire"}
+          {loading ? "Connection..." : "Se connecter"}
         </button>
       </form>
 

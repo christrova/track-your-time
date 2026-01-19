@@ -1,15 +1,12 @@
-import { createClient } from "@supabase/supabase-js"
 import bcrypt from "bcrypt"
 import { NextResponse } from "next/server"
+import { createSupabaseServerClient } from "../_lib/supabase-server"
 
 
-const supabase =  createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const supabase = createSupabaseServerClient()
+
 
 export async function POST(req: Request) {
-    console.log("Req", req)
     const {email, password, username} = await req.json()
 
 
@@ -53,8 +50,6 @@ export async function POST(req: Request) {
     }catch(e){
         return NextResponse.json({error : e}, {status : 400})
     }
-   
-
 
 
     return NextResponse.json({user_id : supabaseUserId}, {status : 200 })

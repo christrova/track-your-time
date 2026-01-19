@@ -4,15 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function AuthPage() {
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const handleDeleteUsers = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // 🔥 Empêche le rechargement de la page
+    e.preventDefault();
     setError(null);
     setSuccess(null);
 
