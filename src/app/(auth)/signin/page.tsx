@@ -1,9 +1,11 @@
 'use client'
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function AuthPage() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,6 +49,9 @@ export default function AuthPage() {
       // (Optionnel) Réinitialiser le formulaire
       setEmail("");
       setPassword("");
+      
+      // Redirect to dashboard
+      router.replace('/dashboard');
 
     } catch (err: any) {
       setError(err.message);

@@ -36,19 +36,38 @@ export async function POST(req: Request) {
 
     const supabaseUserId = data.user?.id;
 
+    if (!supabaseUserId) {
+        return NextResponse.json({error: "Failed to create user in Supabase Auth"}, {status: 400})
+    }
+
     try{
-        await supabase.from("users").insert({
+        // Insert user into users table
+        const { error: usersError } = await supabase.from("users").insert({
             user_id: supabaseUserId,
+            email,
             username
         })
-        await supabase.from('users_auth').update({
+
+        if (usersError) {
+            console.error("❌ Error inserting into users table:", usersError)
+            return NextResponse.json({error: `Failed to create user profile: ${usersError.message}`}, {status: 400})
+        }
+
+        // Update users_auth with the Supabase user_id
+        const { error: authUpdateError } = await supabase.from('users_auth').update({
             user_id : supabaseUserId
         }).eq("email", email)
 
-        await supabase.from("users").insert({ user_id:supabaseUserId, username })
+        if (authUpdateError) {
+            console.error("❌ Error updating users_auth:", authUpdateError)
+            return NextResponse.json({error: `Failed to link auth user: ${authUpdateError.message}`}, {status: 400})
+        }
 
-    }catch(e){
-        return NextResponse.json({error : e}, {status : 400})
+        console.log("✅ User created successfully:", { user_id: supabaseUserId, username })
+
+    }catch(e: any){
+        console.error("❌ Exception during user creation:", e)
+        return NextResponse.json({error: e?.message || "Unknown error"}, {status : 400})
     }
 
 
