@@ -49,8 +49,17 @@ export async function POST(req: Request) {
         })
 
         if (usersError) {
-            console.error("❌ Error inserting into users table:", usersError)
             return NextResponse.json({error: `Failed to create user profile: ${usersError.message}`}, {status: 400})
+        }
+
+        //Init the presence table
+        const {error : presenceError } = await supabase.from("presence").insert({
+            user_id: supabaseUserId,
+            status : "OFFLINE",
+        })
+
+        if(presenceError){
+            return NextResponse.json({error : `Failed to create user profile: ${presenceError.message}`}, {status : 400})
         }
 
         // Update users_auth with the Supabase user_id
@@ -59,14 +68,11 @@ export async function POST(req: Request) {
         }).eq("email", email)
 
         if (authUpdateError) {
-            console.error("❌ Error updating users_auth:", authUpdateError)
             return NextResponse.json({error: `Failed to link auth user: ${authUpdateError.message}`}, {status: 400})
         }
 
-        console.log("✅ User created successfully:", { user_id: supabaseUserId, username })
 
     }catch(e: any){
-        console.error("❌ Exception during user creation:", e)
         return NextResponse.json({error: e?.message || "Unknown error"}, {status : 400})
     }
 
