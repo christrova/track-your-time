@@ -29,9 +29,19 @@ export async function proxy(request: NextRequest) {
 
   const user = data?.claims
 
+  const url = request.nextUrl.clone()
+
   if (!user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/signin'
+    if (url.pathname === "/login" || url.pathname === "/signup") {
+      return supabaseResponse
+    }
+
+    url.pathname = "/login"
+    return NextResponse.redirect(url)
+  }
+
+  if (url.pathname === "/login" || url.pathname === "/signup") {
+    url.pathname = "/dashboard"
     return NextResponse.redirect(url)
   }
 
@@ -39,5 +49,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/dashboard/:path*',
+  matcher: ['/dashboard/:path*', '/login', '/signup',],
 }

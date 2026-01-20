@@ -11,7 +11,7 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSignin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
@@ -76,7 +76,7 @@ export default function AuthPage() {
       <h1 className="text-3xl font-bold">Inscription</h1>
 
       <form
-        onSubmit={handleSignin}
+        onSubmit={handleLogin}
         className="flex flex-col gap-4 border p-6 rounded-lg shadow-md"
       >
         <div>

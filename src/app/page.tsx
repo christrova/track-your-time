@@ -7,7 +7,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold">Track My Time</h1>
         <div className="flex flex-row justify-between w-full">
           <Link className="text-blue-500 my-4 text-lg" href="/signup">Creer un compte</Link>
-          <Link className="text-blue-500 my-4 text-lg" href="/signin">Se connecter</Link>
+          <Link className="text-blue-500 my-4 text-lg" href="/login">Se connecter</Link>
           <Link className="text-blue-500 my-4 text-lg" href="/dashboard">dashboard</Link>
           <Link className="text-blue-500 my-4 text-lg" href="/settings">settings</Link>
           <Link className="text-blue-500 my-4 text-lg" href="/u/rovaencoder">u/rovaencoder</Link>

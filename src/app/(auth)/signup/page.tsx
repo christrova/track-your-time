@@ -113,7 +113,7 @@ export default function AuthPage() {
       </Link>
       <div className="mt-2 text-blue-500" >
         <span>J'ai un compte : </span>
-      <Link className="text-blue-500 my-4 underline" href="/signin">Se connecter</Link>
+      <Link className="text-blue-500 my-4 underline" href="/login">Se connecter</Link>
       </div>
     </div>
   );
