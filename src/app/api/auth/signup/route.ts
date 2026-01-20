@@ -31,17 +31,22 @@ export async function POST(req: Request) {
     })
 
     if (error) {
+        await supabase.from("users_auth").delete().eq("email", email)
         return NextResponse.json({ error: error.message }, { status : 400 })
     }
 
     const supabaseUserId = data.user?.id;
 
     if (!supabaseUserId) {
+        await supabase.from("users_auth").delete().eq("email", email)
         return NextResponse.json({error: "Failed to create user in Supabase Auth"}, {status: 400})
     }
 
-    try{
-        // Insert user into users table
+    let usersCreated = false
+    let presenceCreated = false
+    let usersAuthUpdated = false
+
+    try {
         const { error: usersError } = await supabase.from("users").insert({
             user_id: supabaseUserId,
             email,
@@ -49,33 +54,54 @@ export async function POST(req: Request) {
         })
 
         if (usersError) {
-            return NextResponse.json({error: `Failed to create user profile: ${usersError.message}`}, {status: 400})
+            throw new Error(`Failed to create user: ${usersError.message}`)
         }
+        usersCreated = true
 
-        //Init the presence table
-        const {error : presenceError } = await supabase.from("presence").insert({
+        const { error: presenceError } = await supabase.from("presence").insert({
             user_id: supabaseUserId,
-            status : "OFFLINE",
+            status: "OFFLINE",
         })
 
-        if(presenceError){
-            return NextResponse.json({error : `Failed to create user profile: ${presenceError.message}`}, {status : 400})
+        if (presenceError) {
+            throw new Error(`Failed to create presence: ${presenceError.message}`)
         }
+        presenceCreated = true
 
-        // Update users_auth with the Supabase user_id
         const { error: authUpdateError } = await supabase.from('users_auth').update({
-            user_id : supabaseUserId
+            user_id: supabaseUserId
         }).eq("email", email)
 
         if (authUpdateError) {
-            return NextResponse.json({error: `Failed to link auth user: ${authUpdateError.message}`}, {status: 400})
+            throw new Error(`Failed to link auth user: ${authUpdateError.message}`)
+        }
+        usersAuthUpdated = true
+
+        return NextResponse.json({user_id: supabaseUserId}, {status: 200})
+
+    } catch (error: any) {
+        // Delete in reverse order
+        if (presenceCreated) {
+            await supabase.from("presence").delete().eq("user_id", supabaseUserId)
         }
 
+        if (usersCreated) {
+            await supabase.from("users").delete().eq("user_id", supabaseUserId)
+        }
 
-    }catch(e: any){
-        return NextResponse.json({error: e?.message || "Unknown error"}, {status : 400})
+        // Delete users_auth
+        await supabase.from("users_auth").delete().eq("email", email)
+
+        // Delete Supabase Auth user
+        try {
+            await supabase.auth.admin.deleteUser(supabaseUserId)
+        } catch (deleteError) {
+            console.error("Failed to delete auth user:", deleteError)
+        }
+
+        return NextResponse.json({
+            error: error.message || "Failed to create user",
+            code: "SIGNUP_FAILED"
+        }, {status: 400})
     }
-
-
-    return NextResponse.json({user_id : supabaseUserId}, {status : 200 })
 }
