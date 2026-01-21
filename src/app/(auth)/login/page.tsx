@@ -1,6 +1,6 @@
 'use client'
 
-import { supabase } from "@/lib/supabaseclient";
+import { SupabaseClient } from "@/lib/supabaseclient";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -46,7 +46,7 @@ export default function AuthPage() {
       setPassword("");
 
       if (data.session) {
-        const { error: sessionError } = await supabase.auth.setSession({
+        const { error: sessionError } = await SupabaseClient.auth.setSession({
           access_token: data.session.access_token,
           refresh_token: data.session.refresh_token,
         });
@@ -56,7 +56,7 @@ export default function AuthPage() {
           throw new Error("Failed to set session");
         }
 
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const { data: { session: currentSession } } = await SupabaseClient.auth.getSession();
         if (!currentSession) {
           throw new Error("Session not available after setting");
         }

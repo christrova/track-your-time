@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt"
 import { NextResponse } from "next/server"
-import { createSupabaseServerClient } from "../_lib/supabase-server"
+import { createSupabaseServerClient } from "../_lib/supabaseserver"
 
 
 const supabase = createSupabaseServerClient()

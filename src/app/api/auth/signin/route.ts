@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createSupabaseServerClient, createSupabaseServerClientWithCookies } from "../_lib/supabase-server"
+import { createSupabaseServerClient, createSupabaseServerClientForServerComponent } from "../_lib/supabaseserver"
 import bcrypt from "bcrypt"
 
 export async function POST(req: NextRequest){
@@ -8,8 +8,7 @@ export async function POST(req: NextRequest){
     const adminSupabase = createSupabaseServerClient()
 
     const response = NextResponse.next({ request: req })
-    const { supabase } = createSupabaseServerClientWithCookies(req, response)
-
+    const  supabase  = await createSupabaseServerClientForServerComponent()
 
     const { data: authUser, error: authError } = await adminSupabase
         .from('users_auth')
