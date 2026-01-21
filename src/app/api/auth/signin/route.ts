@@ -56,6 +56,14 @@ export async function POST(req: NextRequest){
             }, {status: 500})
         }
 
+        const {data: userPresence, error: presenceError } = await adminSupabase.from("presence").select("*").eq("user_id", authUser.user_id).single()
+
+
+        if(presenceError){
+            return NextResponse.json({error: `error: "User presence not found. Please contact support :" ${presenceError.message}`}, {status : 500 })
+        }
+
+
         const { data: sessionData, error: signInError } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -71,7 +79,8 @@ export async function POST(req: NextRequest){
 
         const jsonResponse = NextResponse.json({
             user: userData,
-            session: sessionData.session
+            presence: userPresence,
+            session: sessionData.session,
         }, { status: 200 })
 
 
