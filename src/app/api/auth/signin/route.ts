@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createSupabaseServerClient, createSupabaseServerClientForServerComponent } from "../_lib/supabaseserver"
+import { createSupabaseAdminClient, createSupabaseServerClientForRouteHandler } from "../_lib/supabaseserver"
 import bcrypt from "bcrypt"
 
 export async function POST(req: NextRequest){
     const {email, password} = await req.json()
 
-    const adminSupabase = createSupabaseServerClient()
+    const adminSupabase = createSupabaseAdminClient()
 
-    const response = NextResponse.next({ request: req })
-    const  supabase  = await createSupabaseServerClientForServerComponent()
+    const initialResponse = NextResponse.next({ request: req })
+    const { supabase, response: supabaseResponse } = createSupabaseServerClientForRouteHandler(req, initialResponse)
 
     const { data: authUser, error: authError } = await adminSupabase
         .from('users_auth')

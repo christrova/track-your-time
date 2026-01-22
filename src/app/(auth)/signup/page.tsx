@@ -39,7 +39,7 @@ export default function AuthPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Erreur lors de l'inscription");
+        throw new Error(data.error || data.message || "Erreur lors de l'inscription");
       }
 
       setSuccess("Inscription réussie 🎉");

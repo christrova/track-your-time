@@ -1,10 +1,8 @@
 import bcrypt from "bcrypt"
 import { NextResponse } from "next/server"
-import { createSupabaseServerClient } from "../_lib/supabaseserver"
+import { createSupabaseAdminClient } from "../_lib/supabaseserver"
 
-
-const supabase = createSupabaseServerClient()
-
+const supabase = createSupabaseAdminClient()
 
 export async function POST(req: Request) {
     const {email, password, username} = await req.json()

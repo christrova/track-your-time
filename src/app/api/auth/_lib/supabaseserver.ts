@@ -10,6 +10,24 @@ export const createSupabaseServerClient = () => {
   );
 };
 
+/**
+ * Creates a Supabase admin client with service role key
+ * This bypasses Row Level Security (RLS) policies
+ * ⚠️ WARNING: Only use this for server-side admin operations
+ */
+export const createSupabaseAdminClient = () => {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+};
+
 export const createSupabaseServerClientForRouteHandler = (request: NextRequest, response: NextResponse) => {
   let supabaseResponse = response;
 

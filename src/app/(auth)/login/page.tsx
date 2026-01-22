@@ -38,9 +38,8 @@ export default function AuthPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Connexion error");
+        throw new Error(data.error || data.message || "Connexion error");
       }
-
 
       setEmail("");
       setPassword("");
