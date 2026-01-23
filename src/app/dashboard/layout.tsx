@@ -1,40 +1,58 @@
-import { ReactNode } from 'react'
-import { redirect } from 'next/navigation'
-import { getUserData } from '@/lib/queries/user'
-import { createSupabaseServerClientForServerComponent } from '../api/auth/_lib/supabaseserver'
-import { Tabs } from '@/components/dashboard/Tabs'
-
+import { ReactNode } from "react";
+import { redirect } from "next/navigation";
+import { getUserDataById } from "@/lib/queries/user";
+import { createSupabaseServerClientForServerComponent } from "../api/auth/_lib/supabaseserver";
+import { Tabs } from "@/components/dashboard/Tabs";
+import { getUserPresence } from "@/lib/queries/presence";
+import { DashboardProvider } from "@/providers/dashboard-provider";
+import { getUserLinks } from "@/lib/queries/links";
 
 type Props = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 export default async function DashboardLayout({ children }: Props) {
-  const supabase = await createSupabaseServerClientForServerComponent()
+  const supabase = await createSupabaseServerClientForServerComponent();
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user: userAuth },
+  } = await supabase.auth.getUser();
 
-  console.log("user=>>>>", user)
+  // console.log("user=>>>>", userAuth)
+  // console.log("user=>>>>", userAuth?.id)
 
-  if (!user) {
-    redirect('/login')
+  if (!userAuth) {
+    redirect("/login");
   }
 
-  // Récupération profil
-  const { data: profile } = await getUserData(supabase, user.id)
+  const [
+    { data: userData, error: userError },
+    { data: userPresence, error: presenceError },
+    { data: userLinks, error: userLinksError },
+  ] = await Promise.all([
+    getUserDataById(supabase, userAuth.id),
+    getUserPresence(supabase, userAuth.id),
+    getUserLinks(supabase, userAuth.id),
+  ]);
 
-  if (!profile) {
-    redirect('/login')
-  }
+  console.log("userLinks=>>>>", userLinks);
 
   return (
-    <div className="flex flex-row w-full">
-      <Tabs/>
-      <main className="bg-red-500 flex-1">
-        {children}
-      </main>
-    </div>
-  )
+    <DashboardProvider
+      value={{
+        userAuth,
+        userData,
+        userLinks,
+        userPresence,
+        userError,
+        presenceError,
+        userLinksError,
+      }}
+    >
+      <div className="flex flex-row w-full">
+        <Tabs />
+        <main className="bg-red-500 flex-1">{children}</main>
+      </div>
+    </DashboardProvider>
+  );
 }

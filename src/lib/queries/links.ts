@@ -8,5 +8,4 @@ export async function getUserLinks(
       .from('links')
       .select('*')
       .eq('user_id', userId)
-      .single()
   }

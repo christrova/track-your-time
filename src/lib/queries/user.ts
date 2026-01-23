@@ -1,13 +1,15 @@
-import { SupabaseClient } from "@supabase/supabase-js"
+import { SupabaseClient } from "@supabase/supabase-js";
 
-export async function getUserData(
+export async function getUserDataById(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
 ) {
-  return supabase
-    .from('users')
-    .select('*')
-    .eq('user_id', userId)
-    .single()
+  return supabase.from("users").select("*").eq("user_id", userId).single();
 }
 
+export async function getUserDataByUsername(
+  supabase: SupabaseClient,
+  username: string,
+) {
+  return supabase.from("users").select("*").eq("username", username).single();
+}
