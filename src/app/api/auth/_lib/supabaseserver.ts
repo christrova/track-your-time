@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 export const createSupabaseServerClient = () => {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 };
 
@@ -22,13 +22,16 @@ export const createSupabaseAdminClient = () => {
     {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
-    }
+        persistSession: false,
+      },
+    },
   );
 };
 
-export const createSupabaseServerClientForRouteHandler = (request: NextRequest, response: NextResponse) => {
+export const createSupabaseServerClientForRouteHandler = (
+  request: NextRequest,
+  response: NextResponse,
+) => {
   let supabaseResponse = response;
 
   const supabase = createServerClient(
@@ -40,23 +43,25 @@ export const createSupabaseServerClientForRouteHandler = (request: NextRequest, 
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value),
+          );
           supabaseResponse = NextResponse.next({
             request,
           });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options),
           );
         },
       },
-    }
+    },
   );
 
   return { supabase, response: supabaseResponse };
 };
 
 export async function createSupabaseServerClientForServerComponent() {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,7 +69,7 @@ export async function createSupabaseServerClientForServerComponent() {
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll()
+          return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
           // In server components, cookies can only be read, not modified
@@ -72,6 +77,6 @@ export async function createSupabaseServerClientForServerComponent() {
           // For read-only operations like getUser(), this is sufficient
         },
       },
-    }
-  )
+    },
+  );
 }
