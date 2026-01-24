@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { User } from "@/lib/datatype";
 
 export async function getUserDataById(
   supabase: SupabaseClient,
@@ -12,4 +13,17 @@ export async function getUserDataByUsername(
   username: string,
 ) {
   return supabase.from("users").select("*").eq("username", username).single();
+}
+
+export async function updateUserData(
+  supabase: SupabaseClient,
+  userId: string,
+  updates: Partial<User>,
+) {
+  return supabase
+    .from("users")
+    .update(updates)
+    .eq("user_id", userId)
+    .select()
+    .single();
 }
