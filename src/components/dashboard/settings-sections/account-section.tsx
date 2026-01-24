@@ -300,8 +300,6 @@ export function AccountSection() {
           Supprimer le compte
         </button>
       </div>
-
-      {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
