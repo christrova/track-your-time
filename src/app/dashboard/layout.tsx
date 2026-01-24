@@ -18,9 +18,6 @@ export default async function DashboardLayout({ children }: Props) {
     data: { user: userAuth },
   } = await supabase.auth.getUser();
 
-  // console.log("user=>>>>", userAuth)
-  // console.log("user=>>>>", userAuth?.id)
-
   if (!userAuth) {
     redirect("/login");
   }
@@ -35,8 +32,6 @@ export default async function DashboardLayout({ children }: Props) {
     getUserLinks(supabase, userAuth.id),
   ]);
 
-  console.log("userLinks=>>>>", userLinks);
-
   return (
     <DashboardProvider
       value={{
@@ -49,9 +44,9 @@ export default async function DashboardLayout({ children }: Props) {
         userLinksError,
       }}
     >
-      <div className="flex flex-row w-full min-h-screen bg-gray-50">
+      <div className="flex flex-row w-full min-h-screen bg-white">
         <SideBar />
-        <main className="flex-1 overflow-auto bg-gray-50">{children}</main>
+        <main className="flex-1 overflow-auto bg-white">{children}</main>
       </div>
     </DashboardProvider>
   );

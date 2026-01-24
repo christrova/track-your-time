@@ -1,5 +1,6 @@
 "use client";
 
+import { useDashboard } from "@/providers/dashboard-provider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HiViewGrid, HiCog } from "react-icons/hi";
@@ -21,6 +22,9 @@ const tabs = [
 
 export const SideBar = () => {
   const pathname = usePathname();
+  const { userData } = useDashboard();
+
+  console.log(userData);
 
   const isActive = (href: string, exact: boolean) => {
     if (exact) {
@@ -32,13 +36,16 @@ export const SideBar = () => {
   return (
     <nav className="w-64 min-h-screen bg-[#101827] border-r border-gray-800">
       <div className="p-6">
-        <div className="mb-8 pb-6 border-b border-gray-700">
-          <h2 className="text-2xl font-bold text-[#2ecfcf] mb-1">
+        <div className="h-20 flex items-center pb-6 border-b border-gray-700 flex-col">
+          <h2 className="text-2xl font-bold text-[#2ecfcf] leading-tight">
             Gestion du temps
           </h2>
+          <p className="text-gray-300 font-semibold flex   mt-1">
+            {userData.username}
+          </p>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 mt-5">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = isActive(tab.href, tab.exact);
