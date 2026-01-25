@@ -89,7 +89,8 @@ export function AccountSection() {
         throw new Error(result.error || "Échec de la suppression du compte");
       }
 
-      window.location.href = "/";
+      router.replace("/");
+      router.refresh();
     } catch (error: any) {
       setMessage({ type: "error", text: error.message });
       setLoading(false);
