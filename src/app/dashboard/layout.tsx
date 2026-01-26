@@ -6,6 +6,7 @@ import { SideBar } from "@/components/dashboard/Tabs";
 import { getUserPresence } from "@/lib/queries/presence";
 import { DashboardProvider } from "@/providers/dashboard-provider";
 import { getUserLinks } from "@/lib/queries/links";
+import { getUserTasks } from "@/lib/queries/tasks";
 
 type Props = {
   children: ReactNode;
@@ -26,10 +27,12 @@ export default async function DashboardLayout({ children }: Props) {
     { data: userData, error: userError },
     { data: userPresence, error: presenceError },
     { data: userLinks, error: userLinksError },
+    { data: userTasks, error: userTasksError },
   ] = await Promise.all([
     getUserDataById(supabase, userAuth.id),
     getUserPresence(supabase, userAuth.id),
     getUserLinks(supabase, userAuth.id),
+    getUserTasks(supabase, userAuth.id),
   ]);
 
   return (
@@ -39,9 +42,11 @@ export default async function DashboardLayout({ children }: Props) {
         userData,
         userLinks,
         userPresence,
+        userTasks,
         userError,
         presenceError,
         userLinksError,
+        userTasksError,
       }}
     >
       <div className="flex flex-row w-full min-h-screen bg-white">
