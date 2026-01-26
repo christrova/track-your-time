@@ -24,8 +24,6 @@ export const SideBar = () => {
   const pathname = usePathname();
   const { userData } = useDashboard();
 
-  console.log(userData);
-
   const isActive = (href: string, exact: boolean) => {
     if (exact) {
       return pathname === href;
@@ -34,7 +32,7 @@ export const SideBar = () => {
   };
 
   return (
-    <nav className="w-64 min-h-screen bg-[#101827] border-r border-gray-800">
+    <nav className="w-64 shrink-0 sticky top-0 h-screen overflow-y-auto bg-[#101827] border-r border-gray-800">
       <div className="p-6">
         <div className="h-20 flex items-center pb-6 border-b border-gray-700 flex-col">
           <h2 className="text-2xl font-bold text-[#2ecfcf] leading-tight">

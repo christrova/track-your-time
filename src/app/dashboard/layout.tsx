@@ -49,9 +49,11 @@ export default async function DashboardLayout({ children }: Props) {
         userTasksError,
       }}
     >
-      <div className="flex flex-row w-full min-h-screen bg-white">
+      <div className="flex w-full h-screen bg-white">
         <SideBar />
-        <main className="flex-1 overflow-auto bg-white">{children}</main>
+        <main className="flex-1 min-w-0 h-screen overflow-y-auto bg-white">
+          {children}
+        </main>
       </div>
     </DashboardProvider>
   );
