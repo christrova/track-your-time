@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createSupabaseServerClientForServerComponent } from "@/app/api/auth/_lib/supabaseserver";
+import { TypingWord } from "@/components/landing/typing-word";
 
 export default async function Home() {
   const supabase = await createSupabaseServerClientForServerComponent();
@@ -141,11 +142,13 @@ export default async function Home() {
                   </div>
 
                   <div className="mt-6">
-                    <p className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.05] text-gray-900">
-                      Je suis en train d’
-                      <span className="bg-clip-text text-transparent bg-linear-to-r from-fuchsia-600 to-indigo-600">
-                        écrire un livre
-                      </span>
+                    <p className="max-w-full text-[clamp(1.2rem,4.0vw,2.25rem)] font-extrabold tracking-tight leading-[1.05] text-gray-900">
+                      Je suis en train d&apos;
+                      <TypingWord
+                        text="écrire un livre"
+                        cycles={2}
+                        className="bg-clip-text text-transparent bg-linear-to-r from-fuchsia-600 to-indigo-600"
+                      />
                     </p>
                     <p className="mt-3 text-sm text-gray-600">
                       Une phrase simple, lisible, qui dit exactement ce que tu
