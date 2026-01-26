@@ -33,6 +33,8 @@ export type Task = {
     user_id: string; 
     name: string;
     tag?: string | null;
+    prefix_sentence?: string | null;
+    is_current?: boolean | null;
     start_time?: string | null; // timestamp
     finish_time?: string | null; // timestamp
     start_date?: string | null; // date (ISO 8601)

@@ -8,8 +8,10 @@ import { useDashboard } from "@/providers/dashboard-provider";
 import type { Link as UserLink, Task } from "@/lib/datatype";
 import { SupabaseClient } from "@/lib/supabaseclient";
 import { createTask, updateTask } from "@/lib/queries/tasks";
+import { normalizeTaskTag, TASK_TAGS } from "@/lib/task-tags";
+import { parseDbTimestamp } from "@/lib/time";
 import { TaskDetailsModal } from "@/components/dashboard/task-details-modal";
-import { ProfileOrbit } from "@/components/dashboard/profile-orbit";
+import { ProfileHeader } from "@/components/dashboard/profile-header";
 import { PresenceStatusSelector } from "@/components/dashboard/presence-status-selector";
 
 const DEFAULT_PHRASES = [
@@ -55,9 +57,9 @@ const KNOWN_TASKS = [
 ];
 
 function finishedAtForTask(t: Task) {
-  if (t.finish_time) return new Date(t.finish_time);
+  if (t.finish_time) return parseDbTimestamp(t.finish_time);
   if (t.end_date) return new Date(`${t.end_date}T23:59:59.999Z`);
-  return new Date(t.created_at);
+  return parseDbTimestamp(t.created_at);
 }
 
 function formatRelativeTimeFromNow(date: Date) {
@@ -103,6 +105,10 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>(
     Array.isArray(userTasks) ? userTasks : [],
   );
+  const currentTask = useMemo(
+    () => tasks.find((t) => Boolean(t.is_current)) ?? null,
+    [tasks],
+  );
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
@@ -115,6 +121,37 @@ export default function DashboardPage() {
   const [presenceStatus, setPresenceStatus] = useState<
     "WORKING" | "PAUSE" | "OFFLINE"
   >(userPresence?.status || "OFFLINE");
+
+  // Switch current task (confirmation + tag required)
+  const [switchOpen, setSwitchOpen] = useState(false);
+  const [switchLoading, setSwitchLoading] = useState(false);
+  const [pendingTaskName, setPendingTaskName] = useState("");
+  const [pendingTag, setPendingTag] = useState("");
+  const [previousTaskName, setPreviousTaskName] = useState("");
+  const [customTaskTags, setCustomTaskTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("tmt.customTaskTags");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        setCustomTaskTags(
+          parsed
+            .map((t) => normalizeTaskTag(t))
+            .filter((t): t is string => Boolean(t)),
+        );
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const allTaskTags = useMemo(() => {
+    const set = new Set<string>([...TASK_TAGS, ...customTaskTags]);
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [customTaskTags]);
 
   useEffect(() => {
     if (Array.isArray(userTasks)) setTasks(userTasks);
@@ -210,6 +247,8 @@ export default function DashboardPage() {
     return found ?? DEFAULT_PHRASES[0];
   }, [allPhrases, phraseId]);
 
+  const currentTaskName = String(currentTask?.name ?? "").trim();
+
   const renderedActivity = useMemo(() => {
     const tpl = currentPhrase.label;
     const task = taskText.trim() || "…";
@@ -239,6 +278,37 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    // Prefer DB current task as the source of truth
+    if (!currentTask) return;
+    setTaskText(String(currentTask.name ?? ""));
+
+    const dbPhrase = String(currentTask.prefix_sentence ?? "").trim();
+    if (!dbPhrase) return;
+
+    const existing = allPhrases.find((p) => p.label === dbPhrase);
+    if (existing) {
+      setPhraseCategory(existing.category);
+      setPhraseId(existing.id);
+      return;
+    }
+
+    // If the DB phrase isn't in the local list, add it as a custom phrase (local)
+    const id = `c_${Date.now()}`;
+    setCustomPhrases((prev) => {
+      const next = [...prev, { id, label: dbPhrase, category: phraseCategory }];
+      try {
+        window.localStorage.setItem("tmt.customPhrases", JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+    setPhraseId(id);
+  }, [currentTask?.id, currentTask?.prefix_sentence, allPhrases.length]);
+
+  useEffect(() => {
+    // Fallback: derive from presence.current_activity when no current task exists
+    if (currentTask) return;
     if (activityLoadedRef.current) return;
     activityLoadedRef.current = true;
 
@@ -267,14 +337,42 @@ export default function DashboardPage() {
     } else {
       setTaskText(existing);
     }
-  }, [userPresence?.current_activity, allPhrases.length]);
+  }, [currentTask?.id, userPresence?.current_activity, allPhrases.length]);
 
   const saveCurrentActivity = async () => {
     if (!userId) return;
-    const next = renderedActivity.replace("…", "").trim();
     setError(null);
+    // If user typed a different task name, we require confirmation + tag.
+    if (currentTask && taskText.trim() && taskText.trim() !== currentTaskName) {
+      setPreviousTaskName(currentTaskName);
+      setPendingTaskName(taskText.trim());
+      setPendingTag("");
+      setSwitchOpen(true);
+      return;
+    }
+    if (!currentTask) {
+      setError(
+        "Aucune tâche courante. Change la tâche puis valide (avec un tag) pour démarrer.",
+      );
+      return;
+    }
+
+    const next = currentPhrase.label
+      .replace("{task}", String(currentTask.name ?? "").trim() || "…")
+      .replace("…", "")
+      .trim();
+
     setActivitySaving(true);
     try {
+      // Update current task phrase in DB
+      const { error: updErr } = await updateTask(
+        SupabaseClient,
+        userId,
+        currentTask.id,
+        { prefix_sentence: currentPhrase.label },
+      );
+      if (updErr) throw new Error(updErr.message);
+
       const res = await fetch("/api/presence/update", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -292,6 +390,98 @@ export default function DashboardPage() {
       setError(e?.message || "Impossible de mettre à jour.");
     } finally {
       setActivitySaving(false);
+    }
+  };
+
+  const addCustomTaskTag = (raw: string) => {
+    const normalized = normalizeTaskTag(raw);
+    if (!normalized) return;
+    setCustomTaskTags((prev) => {
+      const set = new Set<string>(prev);
+      set.add(normalized);
+      const next = Array.from(set).sort((a, b) => a.localeCompare(b));
+      try {
+        window.localStorage.setItem("tmt.customTaskTags", JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+    setPendingTag(normalized);
+  };
+
+  const confirmSwitchTask = async () => {
+    if (!userId) return;
+    const nextName = String(pendingTaskName ?? "").trim();
+    const normalizedTag = normalizeTaskTag(pendingTag);
+    if (!nextName) return;
+    if (!normalizedTag) {
+      setError("Le tag est obligatoire pour valider la tâche.");
+      return;
+    }
+
+    setError(null);
+    setSwitchLoading(true);
+    const now = new Date().toISOString();
+    try {
+      // Finish previous current task (if any)
+      if (currentTask) {
+        const { data: finished, error: finishErr } = await updateTask(
+          SupabaseClient,
+          userId,
+          currentTask.id,
+          { finish_time: now, is_current: false },
+        );
+        if (finishErr) throw new Error(finishErr.message);
+        if (finished) {
+          setTasks((prev) =>
+            prev.map((t) => (t.id === finished.id ? (finished as Task) : t)),
+          );
+        }
+      }
+
+      // Create new current task
+      const { data: created, error: createErr } = await createTask(
+        SupabaseClient,
+        userId,
+        {
+          name: nextName,
+          tag: normalizedTag,
+          prefix_sentence: currentPhrase.label,
+          is_current: true,
+          start_time: now,
+          is_planned: false,
+          is_recurring: false,
+        },
+      );
+      if (createErr) throw new Error(createErr.message);
+      if (created) {
+        setTasks((prev) => [created as Task, ...prev]);
+      }
+
+      const nextActivity = currentPhrase.label
+        .replace("{task}", nextName)
+        .replace("…", "")
+        .trim();
+
+      await fetch("/api/presence/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          current_activity: nextActivity || null,
+          status: "WORKING",
+        }),
+      });
+
+      setTaskText(nextName);
+      setSwitchOpen(false);
+      setPendingTaskName("");
+      setPendingTag("");
+      router.refresh();
+    } catch (e: any) {
+      setError(e?.message || "Impossible de changer la tâche.");
+    } finally {
+      setSwitchLoading(false);
     }
   };
 
@@ -375,6 +565,11 @@ export default function DashboardPage() {
   }) => {
     if (!userId) return;
     setError(null);
+    const normalizedTag = normalizeTaskTag(draft.tag);
+    if (!normalizedTag) {
+      setError("Le tag est obligatoire pour créer une tâche.");
+      return;
+    }
     setIsCreatingTask(true);
     try {
       const { data, error: createErr } = await createTask(
@@ -382,7 +577,7 @@ export default function DashboardPage() {
         userId,
         {
           name: draft.name,
-          tag: draft.tag ?? null,
+          tag: normalizedTag,
           start_date: draft.start_date ?? null,
           end_date: draft.end_date ?? null,
           start_time: draft.start_time ?? null,
@@ -411,7 +606,7 @@ export default function DashboardPage() {
     if (isCreateTaskOpen) {
       await handleCreateTask({
         name: String(next.name ?? "").trim(),
-        tag: (next.tag as any) ?? null,
+        tag: normalizeTaskTag((next.tag as any) ?? null),
         start_date: (next.start_date as any) ?? null,
         end_date: (next.end_date as any) ?? null,
         start_time: (next.start_time as any) ?? null,
@@ -427,9 +622,10 @@ export default function DashboardPage() {
     setError(null);
     setIsSaving(true);
     try {
+      const normalizedTag = normalizeTaskTag(next.tag ?? null);
       const payload: Partial<Task> = {
         name: (next.name ?? selectedTask.name) as any,
-        tag: (next.tag ?? null) as any,
+        tag: (normalizedTag ?? null) as any,
         start_date: (next.start_date ?? null) as any,
         end_date: (next.end_date ?? null) as any,
         start_time: (next.start_time ?? null) as any,
@@ -522,7 +718,9 @@ export default function DashboardPage() {
             </div>
 
             <div className="p-0">
-              <ProfileOrbit
+              <ProfileHeader
+                firstname={userData?.firstname}
+                lastname={userData?.lastname}
                 username={userData?.username}
                 profession={userData?.profession}
                 initials={initials}
@@ -561,6 +759,27 @@ export default function DashboardPage() {
                             className="w-auto bg-transparent border-b border-dashed border-gray-400 focus:outline-none focus:border-gray-700 placeholder:text-gray-400"
                             style={{ width: `${sizeCh}ch`, maxWidth: "70vw" }}
                             disabled={activitySaving}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const nextName = taskText.trim();
+                                if (nextName && nextName !== currentTaskName) {
+                                  setPreviousTaskName(currentTaskName);
+                                  setPendingTaskName(nextName);
+                                  setPendingTag("");
+                                  setSwitchOpen(true);
+                                }
+                              }
+                            }}
+                            onBlur={() => {
+                              const nextName = taskText.trim();
+                              if (nextName && nextName !== currentTaskName) {
+                                setPreviousTaskName(currentTaskName);
+                                setPendingTaskName(nextName);
+                                setPendingTag("");
+                                setSwitchOpen(true);
+                              }
+                            }}
                           />
                           <span>{after?.trim()}</span>
                         </div>
@@ -687,7 +906,15 @@ export default function DashboardPage() {
                         {knownTaskSuggestions.slice(0, 18).map((name) => (
                           <button
                             key={name}
-                            onClick={() => setTaskText(name)}
+                            onClick={() => {
+                              setTaskText(name);
+                              if (name !== currentTaskName) {
+                                setPreviousTaskName(currentTaskName);
+                                setPendingTaskName(name);
+                                setPendingTag("");
+                                setSwitchOpen(true);
+                              }
+                            }}
                             className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm"
                             disabled={activitySaving}
                           >
@@ -705,35 +932,37 @@ export default function DashboardPage() {
                     <p className="text-sm font-semibold text-gray-900">
                       Tâches récentes
                     </p>
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-4">
                       {recentTasks.length === 0 ? (
                         <p className="text-sm text-gray-500">Aucune tâche.</p>
                       ) : (
-                        recentTasks.map((t) => (
-                          <button
-                            key={t.id}
-                            onClick={() => setSelectedTask(t)}
-                            className="w-full text-left px-4 py-4 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center justify-between gap-4">
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {t.name}
-                                </p>
-                                {t.tag && (
-                                  <p className="mt-1 text-xs text-gray-500 truncate">
-                                    {t.tag}
+                        <div className="max-h-[340px] overflow-y-auto pr-1 space-y-2">
+                          {recentTasks.map((t) => (
+                            <button
+                              key={t.id}
+                              onClick={() => setSelectedTask(t)}
+                              className="w-full text-left px-4 py-4 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
+                            >
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {t.name}
                                   </p>
-                                )}
+                                  {t.tag && (
+                                    <p className="mt-1 text-xs text-gray-500 truncate">
+                                      {t.tag}
+                                    </p>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-500 shrink-0">
+                                  {formatRelativeTimeFromNow(
+                                    finishedAtForTask(t),
+                                  )}
+                                </p>
                               </div>
-                              <p className="text-sm text-gray-500 shrink-0">
-                                {formatRelativeTimeFromNow(
-                                  finishedAtForTask(t),
-                                )}
-                              </p>
-                            </div>
-                          </button>
-                        ))
+                            </button>
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -866,6 +1095,107 @@ export default function DashboardPage() {
         onSave={handleUpsertTask}
         isSaving={isCreateTaskOpen ? isCreatingTask : isSaving}
       />
+
+      {/* Switch current task confirmation (tag required) */}
+      {switchOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !switchLoading) {
+              setSwitchOpen(false);
+              setPendingTaskName("");
+              setPendingTag("");
+              setTaskText(currentTaskName || previousTaskName);
+            }
+          }}
+        >
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
+          <div
+            className="relative bg-white rounded-md shadow-xl w-full max-w-md overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="p-5 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Changer de tâche ?
+              </h3>
+              <p className="mt-1 text-sm text-gray-600">
+                {currentTaskName
+                  ? `On termine “${currentTaskName}” et on démarre “${pendingTaskName}”.`
+                  : `On démarre “${pendingTaskName}”.`}
+              </p>
+            </div>
+            <div className="p-5 space-y-3">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">
+                  Tag *
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    list="tmt-task-tags-switch"
+                    value={pendingTag}
+                    onChange={(e) => setPendingTag(e.target.value)}
+                    placeholder="ex: sport, sommeil, travail…"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={switchLoading}
+                  />
+                  {(() => {
+                    const normalized = normalizeTaskTag(pendingTag);
+                    const canCreate =
+                      Boolean(normalized) &&
+                      !allTaskTags.includes(String(normalized));
+                    if (!canCreate) return null;
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => addCustomTaskTag(pendingTag)}
+                        disabled={switchLoading}
+                        className="shrink-0 px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Créer ce tag"
+                      >
+                        Créer
+                      </button>
+                    );
+                  })()}
+                </div>
+                <datalist id="tmt-task-tags-switch">
+                  {allTaskTags.map((t) => (
+                    <option key={t} value={t} />
+                  ))}
+                </datalist>
+                {!normalizeTaskTag(pendingTag) && (
+                  <p className="text-xs text-red-600">
+                    Le tag est obligatoire.
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="p-5 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSwitchOpen(false);
+                  setPendingTaskName("");
+                  setPendingTag("");
+                  setTaskText(currentTaskName || previousTaskName);
+                }}
+                disabled={switchLoading}
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={confirmSwitchTask}
+                disabled={switchLoading || !normalizeTaskTag(pendingTag)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {switchLoading ? "..." : "Valider"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

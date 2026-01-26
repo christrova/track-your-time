@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { HiX } from "react-icons/hi";
 import type { Task } from "@/lib/datatype";
+import { normalizeTaskTag, TASK_TAGS } from "@/lib/task-tags";
+import { parseDbTimestamp } from "@/lib/time";
 
 function toDateInputValue(isoDate: string | null | undefined) {
   if (!isoDate) return "";
@@ -13,7 +15,7 @@ function toDateInputValue(isoDate: string | null | undefined) {
 function toDateTimeLocalValue(iso: string | null | undefined) {
   if (!iso) return "";
   // expects YYYY-MM-DDTHH:mm (no seconds)
-  const d = new Date(iso);
+  const d = parseDbTimestamp(iso);
   if (Number.isNaN(d.getTime())) return "";
   const pad = (n: number) => String(n).padStart(2, "0");
   const yyyy = d.getFullYear();
@@ -49,6 +51,52 @@ export function TaskDetailsModal({
   mode = "edit",
 }: Props) {
   const [draft, setDraft] = useState<Partial<Task>>({});
+  const [customTags, setCustomTags] = useState<string[]>([]);
+  const tagValue = String(draft.tag ?? "");
+  const normalizedTag = normalizeTaskTag(tagValue);
+  const isTagMissing = mode === "create" && !tagValue.trim();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("tmt.customTaskTags");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        setCustomTags(
+          parsed
+            .map((t) => normalizeTaskTag(t))
+            .filter((t): t is string => Boolean(t)),
+        );
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const allTags = useMemo(() => {
+    const set = new Set<string>([...TASK_TAGS, ...customTags]);
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [customTags]);
+
+  const canCreateTag =
+    Boolean(normalizedTag) && !allTags.includes(String(normalizedTag));
+
+  const addCustomTag = () => {
+    if (!normalizedTag) return;
+    setCustomTags((prev) => {
+      const set = new Set<string>(prev);
+      set.add(normalizedTag);
+      const next = Array.from(set).sort((a, b) => a.localeCompare(b));
+      try {
+        window.localStorage.setItem("tmt.customTaskTags", JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+    setDraft((p) => ({ ...p, tag: normalizedTag }));
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -157,19 +205,54 @@ export function TaskDetailsModal({
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Tag</label>
-              <input
-                value={String(draft.tag ?? "")}
-                onChange={(e) =>
-                  setDraft((p) => ({
-                    ...p,
-                    tag: e.target.value ? e.target.value : null,
-                  }))
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ex: sport, dev, admin"
-                disabled={isSaving}
-              />
+              <label className="text-sm font-medium text-gray-700">
+                Tag {mode === "create" ? "*" : ""}
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  list="tmt-task-tags"
+                  value={tagValue}
+                  onChange={(e) =>
+                    setDraft((p) => ({
+                      ...p,
+                      tag: e.target.value ? e.target.value : null,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="ex: sport, sommeil, travail…"
+                  disabled={isSaving}
+                />
+                {canCreateTag && (
+                  <button
+                    type="button"
+                    onClick={addCustomTag}
+                    disabled={isSaving}
+                    className="shrink-0 px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Créer ce tag"
+                  >
+                    Créer
+                  </button>
+                )}
+              </div>
+              <datalist id="tmt-task-tags">
+                {allTags.map((t) => (
+                  <option key={t} value={t} />
+                ))}
+              </datalist>
+              {mode === "create" && (
+                <p className="text-xs text-gray-500">
+                  Choisis un tag (obligatoire) pour tes futures stats.
+                </p>
+              )}
+              {canCreateTag && (
+                <p className="text-xs text-gray-500">
+                  Ce tag n’existe pas encore. Clique sur “Créer” pour l’ajouter à
+                  ta liste.
+                </p>
+              )}
+              {isTagMissing && (
+                <p className="text-xs text-red-600">Le tag est obligatoire.</p>
+              )}
             </div>
 
             <div className="space-y-1">
@@ -282,7 +365,9 @@ export function TaskDetailsModal({
           </button>
           <button
             onClick={() => onSave(draft)}
-            disabled={isSaving || !String(draft.name ?? "").trim()}
+            disabled={
+              isSaving || !String(draft.name ?? "").trim() || isTagMissing
+            }
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isSaving

@@ -10,6 +10,8 @@ export async function createTask(
   payload: {
     name: string;
     tag?: string | null;
+    prefix_sentence?: string | null;
+    is_current?: boolean | null;
     start_time?: string | null;
     finish_time?: string | null;
     start_date?: string | null;
@@ -24,6 +26,8 @@ export async function createTask(
       user_id: userId,
       name: payload.name,
       tag: payload.tag ?? null,
+      prefix_sentence: payload.prefix_sentence ?? null,
+      is_current: payload.is_current ?? false,
       start_time: payload.start_time ?? null,
       finish_time: payload.finish_time ?? null,
       start_date: payload.start_date ?? null,
@@ -42,6 +46,8 @@ export async function updateTask(
   payload: Partial<{
     name: string;
     tag: string | null;
+    prefix_sentence: string | null;
+    is_current: boolean | null;
     start_time: string | null;
     finish_time: string | null;
     start_date: string | null;

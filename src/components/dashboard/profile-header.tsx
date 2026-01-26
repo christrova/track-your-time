@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Link as UserLink } from "@/lib/datatype";
-import { HiLink, HiPencil } from "react-icons/hi";
+import { HiLink, HiPencil, HiPlus } from "react-icons/hi";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { HiGlobeAlt } from "react-icons/hi";
 
 type Props = {
+  firstname?: string | null;
+  lastname?: string | null;
   username?: string;
   profession?: string | null;
   initials: string;
@@ -33,7 +36,26 @@ function iconForNetwork(name: string) {
   return { icon: <HiLink className="text-xl" />, accent: "text-gray-700" };
 }
 
-export function ProfileOrbit({ username, profession, initials, links }: Props) {
+function displayNameFor({
+  firstname,
+  lastname,
+  username,
+}: Pick<Props, "firstname" | "lastname" | "username">) {
+  const full = `${String(firstname ?? "").trim()} ${String(lastname ?? "").trim()}`
+    .trim()
+    .replace(/\s+/g, " ");
+  return full || String(username ?? "").trim() || "—";
+}
+
+export function ProfileHeader({
+  firstname,
+  lastname,
+  username,
+  profession,
+  initials,
+  links,
+}: Props) {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
 
@@ -56,6 +78,11 @@ export function ProfileOrbit({ username, profession, initials, links }: Props) {
       )
       .map((l) => ({ ...l, ...iconForNetwork(l.network_name) }));
   }, [links]);
+
+  const displayName = useMemo(
+    () => displayNameFor({ firstname, lastname, username }),
+    [firstname, lastname, username],
+  );
 
   return (
     <div className="w-full">
@@ -123,31 +150,52 @@ export function ProfileOrbit({ username, profession, initials, links }: Props) {
 
         {/* Name + profession */}
         <div className="mt-4 text-center">
-          <p className="text-3xl font-bold text-gray-900">{username}</p>
+          <p className="text-3xl font-bold text-gray-900">{displayName}</p>
           <p className="mt-1 text-sm text-gray-600">{profession || "—"}</p>
         </div>
 
         {/* Links under the name (LinkedIn-like) */}
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {sortedLinks.length === 0 ? (
-            <p className="text-sm text-gray-500">Aucun lien.</p>
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard/settings?tabs=reseaux")}
+              className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+              style={{ borderRadius: 6 }}
+            >
+              <HiPencil className="text-lg" />
+              <span className="text-sm font-medium">Ajouter un lien</span>
+            </button>
           ) : (
-            sortedLinks.map((l) => (
-              <a
-                key={l.id}
-                href={l.network_link}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 bg-white text-gray-800 hover:bg-gray-50"
+            <>
+              {sortedLinks.map((l) => (
+                <a
+                  key={l.id}
+                  href={l.network_link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 bg-white text-gray-800 hover:bg-gray-50"
+                  style={{ borderRadius: 6 }}
+                >
+                  <span className={l.accent}>{l.icon}</span>
+                  <span className="text-sm font-medium">{l.network_name}</span>
+                </a>
+              ))}
+              <button
+                type="button"
+                onClick={() => router.push("/dashboard/settings?tabs=reseaux")}
+                className="inline-flex items-center justify-center w-10 h-10 border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                 style={{ borderRadius: 6 }}
+                aria-label="Ajouter un lien"
+                title="Ajouter un lien"
               >
-                <span className={l.accent}>{l.icon}</span>
-                <span className="text-sm font-medium">{l.network_name}</span>
-              </a>
-            ))
+                <HiPlus className="text-xl" />
+              </button>
+            </>
           )}
         </div>
       </div>
     </div>
   );
 }
+
