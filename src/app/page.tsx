@@ -16,12 +16,12 @@ export default async function Home() {
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-gray-900 font-extrabold tracking-tight"
-            aria-label="Track My Time"
+            aria-label="En ce moment"
           >
             <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gray-900 text-white shadow-sm">
-              T
+              E
             </span>
-            <span className="text-base sm:text-lg">Track My Time</span>
+            <span className="text-base sm:text-lg">En ce moment</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm text-gray-600">
@@ -69,19 +69,20 @@ export default async function Home() {
           <section className="lg:col-span-6">
             <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/80 px-4 py-2 text-sm text-gray-700 shadow-sm">
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-              <span>Nouveau: page publique + statut</span>
+              <span>Minimaliste • activité • statut • page publique</span>
             </div>
 
-            <h1 className="mt-6 text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 leading-[0.95]">
-              Suis ton temps,
+            <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.02]">
+              Dis ce que tu fais.
               <br />
-              sans effort.
+              C’est tout.
             </h1>
 
             <p className="mt-5 text-base sm:text-lg text-gray-600 max-w-xl">
-              Track My Time te permet de définir ta tâche courante, afficher ton
-              statut (travail / pause / hors ligne) et garder un historique clair
-              — avec une page publique propre si tu veux partager.
+              <span className="font-semibold text-gray-900">En ce moment</span>{" "}
+              te permet d’indiquer ton activité actuelle, ton statut (travail,
+              pause ou hors ligne) et de la partager via une page publique — ou
+              de tout garder privé.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
@@ -112,20 +113,7 @@ export default async function Home() {
               </span>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2 text-xs text-gray-600">
-              <span className="inline-flex items-center rounded-full border border-gray-200 bg-white/70 px-3 py-1">
-                Tâche courante
-              </span>
-              <span className="inline-flex items-center rounded-full border border-gray-200 bg-white/70 px-3 py-1">
-                Statut présence
-              </span>
-              <span className="inline-flex items-center rounded-full border border-gray-200 bg-white/70 px-3 py-1">
-                Profil public
-              </span>
-              <span className="inline-flex items-center rounded-full border border-gray-200 bg-white/70 px-3 py-1">
-                Historique
-              </span>
-            </div>
+            {/* micro-texts removed (keep landing minimal) */}
           </section>
 
           <section className="lg:col-span-6">
@@ -151,21 +139,33 @@ export default async function Home() {
                       />
                     </p>
                     <p className="mt-3 text-sm text-gray-600">
-                      Une phrase simple, lisible, qui dit exactement ce que tu
-                      fais.
+                      Une phrase claire qui décrit ce que tu fais maintenant.
+                      Compréhensible en une seconde.
                     </p>
                   </div>
 
                   <div className="mt-7 grid grid-cols-1 gap-3">
                     <div className="rounded-2xl border border-gray-200 bg-white/80 px-4 py-4">
                       <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Tâches récentes
+                        Activités récentes
                       </p>
                       <div className="mt-3 space-y-2">
                         {[
-                          { name: "Coder", tag: "travail" },
-                          { name: "Faire du vélo", tag: "sport" },
-                          { name: "Lecture", tag: "perso" },
+                          {
+                            name: "Coder",
+                            tag: "Travail",
+                            when: "il y a 15 min",
+                          },
+                          {
+                            name: "Faire du vélo",
+                            tag: "Sport",
+                            when: "il y a 1 h",
+                          },
+                          {
+                            name: "Lecture",
+                            tag: "Personnel",
+                            when: "il y a 3 h",
+                          },
                         ].map((t) => (
                           <div
                             key={t.name}
@@ -173,13 +173,18 @@ export default async function Home() {
                           >
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-gray-900 truncate">
-                                {t.name}
-                              </p>
-                              <p className="text-xs text-gray-500 truncate">
-                                {t.tag}
+                                {t.name}{" "}
+                                <span className="text-gray-400 font-normal">
+                                  —{" "}
+                                </span>
+                                <span className="text-gray-700 font-semibold">
+                                  {t.tag}
+                                </span>
                               </p>
                             </div>
-                            <div className="h-8 w-20 rounded-lg bg-linear-to-r from-gray-100 to-gray-50" />
+                            <p className="shrink-0 text-xs font-medium text-gray-500">
+                              {t.when}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -211,7 +216,81 @@ export default async function Home() {
           </section>
         </div>
 
-        <section id="how" className="mt-20">
+        <section id="features" className="mt-14">
+          <div className="rounded-4xl border border-gray-200 bg-white/70 backdrop-blur shadow-sm p-6 sm:p-10">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
+              Fonctionnalités
+            </h2>
+
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <p className="text-sm font-semibold text-gray-900">
+                  Ton activité actuelle
+                </p>
+                <p className="mt-2 text-sm text-gray-600">
+                  Une phrase claire qui décrit ce que tu fais maintenant.
+                  Compréhensible en une seconde.
+                </p>
+                <p className="mt-4 text-sm font-semibold text-gray-900">
+                  Exemple affiché
+                </p>
+                <p className="mt-2 text-base font-extrabold tracking-tight text-gray-900">
+                  Je suis en train d’{" "}
+                  <span className="bg-clip-text text-transparent bg-linear-to-r from-fuchsia-600 to-indigo-600">
+                    écrire un livre
+                  </span>
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <p className="text-sm font-semibold text-gray-900">
+                  Activités récentes
+                </p>
+                <p className="mt-2 text-sm text-gray-600">
+                  Un historique court et clair. Tu vois l’essentiel, tout de
+                  suite.
+                </p>
+                <div className="mt-4 space-y-2">
+                  {[
+                    "Coder — Travail",
+                    "Faire du vélo — Sport",
+                    "Lecture — Personnel",
+                  ].map((line) => (
+                    <div
+                      key={line}
+                      className="rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-2 text-sm font-semibold text-gray-800"
+                    >
+                      {line}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <p className="text-sm font-semibold text-gray-900">Statut</p>
+                <p className="mt-2 text-sm text-gray-600">
+                  Travail, pause ou hors ligne — visible immédiatement.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-700">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 shadow-sm">
+                    <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+                    Travail
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 shadow-sm">
+                    <span className="inline-block h-2 w-2 rounded-full bg-yellow-400" />
+                    Pause
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 shadow-sm">
+                    <span className="inline-block h-2 w-2 rounded-full bg-gray-300" />
+                    Hors ligne
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="how" className="mt-14">
           <div className="rounded-4xl border border-gray-200 bg-white/70 backdrop-blur shadow-sm p-6 sm:p-10">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
               Comment ça marche
@@ -219,16 +298,16 @@ export default async function Home() {
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
               {[
                 {
-                  title: "Choisis une tâche",
-                  desc: "Définis une tâche courante avec un tag. La phrase se met à jour automatiquement.",
+                  title: "1. Décris ton activité",
+                  desc: "Écris simplement ce que tu fais. Ajoute un tag si tu veux.",
                 },
                 {
-                  title: "Change de statut",
-                  desc: "Travail, pause ou hors ligne — ton profil affiche l’info clairement.",
+                  title: "2. Choisis ton statut",
+                  desc: "Travail, pause ou hors ligne — visible immédiatement.",
                 },
                 {
-                  title: "Partage (ou pas)",
-                  desc: "Active le mode public et envoie ton lien. Sinon, garde tout privé.",
+                  title: "3. Partage (ou pas)",
+                  desc: "Active une page publique et partage le lien. Sinon, tout reste privé.",
                 },
               ].map((c) => (
                 <div
@@ -245,20 +324,20 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="features" className="mt-14">
+        <section className="mt-14">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
               {
                 title: "Lisible",
-                desc: "Une phrase d’activité en grand, compréhensible en 1 seconde.",
+                desc: "Une information claire, sans bruit.",
               },
               {
                 title: "Simple",
-                desc: "Un dashboard sans friction pour garder ton rythme.",
+                desc: "Pas de minuteur. Pas de friction. Juste l’essentiel.",
               },
               {
                 title: "Partageable",
-                desc: "Une page publique clean pour tes proches/clients/équipe.",
+                desc: "Une page publique propre pour proches ou équipe.",
               },
             ].map((f) => (
               <div
@@ -281,11 +360,11 @@ export default async function Home() {
               {[
                 {
                   q: "C’est public par défaut ?",
-                  a: "Non. Tu actives le mode public uniquement si tu le souhaites.",
+                  a: "Non. Le mode public est entièrement optionnel.",
                 },
                 {
-                  q: "Je peux juste afficher sans actions ?",
-                  a: "Oui — la page publique est pensée pour être 100% lecture seule.",
+                  q: "On peut seulement consulter ?",
+                  a: "Oui. La page publique est 100 % en lecture seule.",
                 },
               ].map((x) => (
                 <div
@@ -301,7 +380,7 @@ export default async function Home() {
         </section>
 
         <footer className="mt-14 pb-6 text-center text-xs text-gray-500">
-          © {new Date().getFullYear()} Track My Time
+          © {new Date().getFullYear()} En ce moment
         </footer>
       </main>
     </div>

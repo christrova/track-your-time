@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Track My Time",
+  title: "En ce moment",
   description:
     "Un dashboard simple pour suivre tes tâches, ton statut (travail/pause/hors ligne) et partager un profil public propre.",
 };
