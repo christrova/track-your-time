@@ -40,7 +40,11 @@ function activityPartsFromCurrentTask(task: Task | null): {
 
   if (tpl.includes("{task}")) {
     const [before, after] = tpl.split("{task}");
-    return { before: (before ?? "").trim(), task: taskName, after: (after ?? "").trim() };
+    return {
+      before: (before ?? "").trim(),
+      task: taskName,
+      after: (after ?? "").trim(),
+    };
   }
 
   // If template doesn't include {task}, treat it as a prefix.
@@ -97,14 +101,13 @@ export default async function DashboardPage({
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Profil public
               </p>
-              <span className="text-sm font-medium text-gray-700">@{userData.username}</span>
+              <span className="text-sm font-medium text-gray-700">
+                @{userData.username}
+              </span>
             </div>
             <div className="p-6">
               <p className="text-lg font-semibold text-gray-900">
                 Ce profil est privé.
-              </p>
-              <p className="mt-1 text-sm text-gray-600">
-                L’utilisateur a désactivé le mode public.
               </p>
             </div>
           </div>
