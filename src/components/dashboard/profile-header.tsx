@@ -7,7 +7,12 @@ import { HiLink, HiPencil, HiPlus } from "react-icons/hi";
 import { HiColorSwatch } from "react-icons/hi";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { HiGlobeAlt } from "react-icons/hi";
-import { BANNER_THEMES, getThemeById, type BannerThemeId } from "@/lib/banner-themes";
+import {
+  BANNER_THEMES,
+  getThemeById,
+  type BannerThemeId,
+} from "@/lib/banner-themes";
+import { SupabaseClient } from "@/lib/supabaseclient";
 
 type Props = {
   firstname?: string | null;
@@ -17,6 +22,8 @@ type Props = {
   initials: string;
   links: UserLink[];
   bannerColorId?: string | null;
+  userId?: string | null;
+  avatarUrl?: string | null;
 };
 
 const BANNER_HEIGHT = 170; // px
@@ -45,9 +52,10 @@ function displayNameFor({
   lastname,
   username,
 }: Pick<Props, "firstname" | "lastname" | "username">) {
-  const full = `${String(firstname ?? "").trim()} ${String(lastname ?? "").trim()}`
-    .trim()
-    .replace(/\s+/g, " ");
+  const full =
+    `${String(firstname ?? "").trim()} ${String(lastname ?? "").trim()}`
+      .trim()
+      .replace(/\s+/g, " ");
   return full || String(username ?? "").trim() || "—";
 }
 
@@ -59,30 +67,32 @@ export function ProfileHeader({
   initials,
   links,
   bannerColorId,
+  userId,
+  avatarUrl,
 }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+  const [avatarUrlState, setAvatarUrlState] = useState<string | null>(
+    avatarUrl ?? null,
+  );
   const [bannerThemeId, setBannerThemeId] = useState<BannerThemeId>("slate");
   const [themeOpen, setThemeOpen] = useState(false);
   const [themeSaving, setThemeSaving] = useState(false);
+  const [avatarSaving, setAvatarSaving] = useState(false);
 
+  // Sync when user data changes
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const saved = window.localStorage.getItem("tmt.profileImage");
-      if (saved) setImageDataUrl(saved);
-    } catch {
-      // ignore
-    }
-  }, []);
+    setAvatarUrlState(avatarUrl ?? null);
+  }, [avatarUrl]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
       // Prefer DB value (for public banner consistency), fallback to local, then default.
       const fromDb = getThemeById(bannerColorId).id;
-      const fromLocal = getThemeById(window.localStorage.getItem(BANNER_KEY)).id;
+      const fromLocal = getThemeById(
+        window.localStorage.getItem(BANNER_KEY),
+      ).id;
       setBannerThemeId((fromDb || fromLocal) as BannerThemeId);
     } catch {
       // ignore
@@ -112,10 +122,7 @@ export function ProfileHeader({
   return (
     <div className="w-full">
       {/* Banner */}
-      <div
-        className="relative w-full"
-        style={{ height: BANNER_HEIGHT }}
-      >
+      <div className="relative w-full" style={{ height: BANNER_HEIGHT }}>
         {/* clipped background layers */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div
@@ -203,31 +210,44 @@ export function ProfileHeader({
       {/* Content */}
       <div className="relative px-6 pb-6">
         {/* Avatar */}
-        <div className="flex justify-center -mt-16">
-          <div
-            className="relative rounded-full overflow-hidden shadow-xl ring-4 ring-white/90 bg-linear-to-br from-blue-600 to-cyan-500 flex items-center justify-center"
-            style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-          >
-            {imageDataUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={imageDataUrl}
-                alt="Photo de profil"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-white text-4xl font-bold tracking-wide">
-                {initials}
-              </span>
-            )}
-
+        <div className="flex justify-center -mt-16 mb-2">
+          <div className="relative">
+            <div
+              className="pointer-events-none absolute inset-0 translate-y-4 scale-110 rounded-full bg-black/15 blur-3xl opacity-40"
+              aria-hidden="true"
+            />
+            <div className="relative rounded-full bg-white/40 backdrop-blur-xl p-[4px] shadow-[0_18px_50px_rgba(15,23,42,0.35)]">
+              <div
+                className="relative rounded-full overflow-hidden flex items-center justify-center"
+                style={{
+                  width: AVATAR_SIZE,
+                  height: AVATAR_SIZE,
+                  backgroundImage: bannerTheme.gradient,
+                }}
+              >
+                <div className="absolute inset-0 bg-linear-to-b from-white/45 via-white/10 to-transparent opacity-80" />
+                {avatarUrlState ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarUrlState}
+                    alt="Photo de profil"
+                    className="relative h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="relative text-white text-4xl font-bold tracking-wide">
+                    {initials}
+                  </span>
+                )}
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute right-2 bottom-1 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:shadow-md transition"
-              aria-label="Choisir une image de profil"
+              disabled={avatarSaving}
+              className="absolute -bottom-1 right-1 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:shadow-md transition disabled:opacity-60"
+              aria-label="Mettre à jour la photo de profil"
             >
-              <HiPencil className="text-lg" />
+              <HiPencil className="text-xs" />
             </button>
           </div>
         </div>
@@ -237,20 +257,35 @@ export function ProfileHeader({
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={(e) => {
+          onChange={async (e) => {
             const file = e.target.files?.[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => {
-              const result = String(reader.result || "");
-              setImageDataUrl(result);
-              try {
-                window.localStorage.setItem("tmt.profileImage", result);
-              } catch {
-                // ignore
-              }
-            };
-            reader.readAsDataURL(file);
+            if (!file || !userId) return;
+            setAvatarSaving(true);
+            try {
+              const ext = file.name.split(".").pop() || "jpg";
+              const path = `${userId}/avatar.${ext}`;
+              const { error } = await SupabaseClient.storage
+                .from("avatars")
+                .upload(path, file, { upsert: true });
+              if (error) throw error;
+
+              const {
+                data: { publicUrl },
+              } = SupabaseClient.storage.from("avatars").getPublicUrl(path);
+
+              setAvatarUrlState(publicUrl);
+
+              await fetch("/api/user/update", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ avatar_url: publicUrl }),
+              });
+            } catch (err) {
+              // eslint-disable-next-line no-console
+              console.error("Failed to upload avatar", err);
+            } finally {
+              setAvatarSaving(false);
+            }
           }}
         />
 
@@ -304,4 +339,3 @@ export function ProfileHeader({
     </div>
   );
 }
-

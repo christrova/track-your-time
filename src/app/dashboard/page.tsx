@@ -729,6 +729,8 @@ export default function DashboardPage() {
                 initials={initials}
                 links={socialLinks}
                 bannerColorId={(userData as any)?.banner_color_id}
+                userId={userId}
+                avatarUrl={(userData as any)?.avatar_url}
               />
 
               <div className="px-6 pb-6">

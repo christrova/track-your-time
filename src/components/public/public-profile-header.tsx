@@ -12,6 +12,7 @@ type Props = {
   initials: string;
   links: UserLink[];
   bannerColorId?: string | null;
+  avatarUrl?: string | null;
 };
 
 const BANNER_HEIGHT = 170; // px
@@ -53,6 +54,7 @@ export function PublicProfileHeader({
   initials,
   links,
   bannerColorId,
+  avatarUrl,
 }: Props) {
   const sortedLinks = (Array.isArray(links) ? links : [])
     .filter((l) => Boolean(l?.network_link))
@@ -100,13 +102,26 @@ export function PublicProfileHeader({
             <div className="relative rounded-full bg-white/40 backdrop-blur-xl p-[4px] shadow-[0_24px_60px_rgba(15,23,42,0.35)]">
               <div
                 className="relative flex items-center justify-center rounded-full overflow-hidden"
-                style={{ width: AVATAR_SIZE, height: AVATAR_SIZE, backgroundImage: bannerTheme.gradient }}
+                style={{
+                  width: AVATAR_SIZE,
+                  height: AVATAR_SIZE,
+                  backgroundImage: bannerTheme.gradient,
+                }}
                 aria-label="Avatar"
               >
                 <div className="absolute inset-0 bg-linear-to-b from-white/45 via-white/10 to-transparent opacity-80" />
-                <span className="relative text-white text-4xl font-bold tracking-wide">
-                  {initials}
-                </span>
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="relative h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="relative text-white text-4xl font-bold tracking-wide">
+                    {initials}
+                  </span>
+                )}
               </div>
             </div>
           </div>

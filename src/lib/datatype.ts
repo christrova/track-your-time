@@ -7,6 +7,7 @@ export type User = {
     profession?: string | null;
     sexe?: "M" | "F" | "OTHER" | null;
     public_mode: boolean;
+    avatar_url?: string | null;
     banner_color_id?: string | null;
     created_at: string; // timestamp
   };
