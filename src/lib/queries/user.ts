@@ -12,7 +12,8 @@ export async function getUserDataByUsername(
   supabase: SupabaseClient,
   username: string,
 ) {
-  return supabase.from("users").select("*").eq("username", username).single();
+  const normalized = String(username ?? "").trim().toLowerCase();
+  return supabase.from("users").select("*").eq("username", normalized).single();
 }
 
 export async function updateUserData(
