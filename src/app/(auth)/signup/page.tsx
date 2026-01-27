@@ -84,6 +84,15 @@ export default function SignupPage() {
     <AuthShell
       title="Créer un compte"
       subtitle="Une minute et c’est parti."
+      topLink={
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-full border border-gray-200 bg-white/90 px-4 py-2.5 text-sm font-semibold text-gray-800 shadow-sm backdrop-blur transition hover:bg-gray-50 hover:shadow sm:px-5 sm:py-2"
+          aria-label="Retour à l'accueil En ce moment"
+        >
+          En ce moment
+        </Link>
+      }
       footer={
         <p className="text-sm text-gray-700">
           Déjà un compte ?{" "}

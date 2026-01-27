@@ -4,6 +4,7 @@ import { getUserPresence } from "@/lib/queries/presence";
 import { getUserTasks } from "@/lib/queries/tasks";
 import { getUserDataByUsername } from "@/lib/queries/user";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { PublicProfileHeader } from "@/components/public/public-profile-header";
 import type { Task } from "@/lib/datatype";
 import { parseDbTimestamp } from "@/lib/time";
@@ -109,11 +110,19 @@ export default async function DashboardPage({
           aria-hidden="true"
         />
 
+        <div className="fixed left-4 top-4 z-10 hidden sm:block sm:left-6 sm:top-6 lg:left-10 lg:top-10">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center rounded-full border border-gray-200 bg-white/90 px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm backdrop-blur transition hover:bg-gray-50 hover:shadow"
+          >
+            En ce moment
+          </Link>
+        </div>
         <div className="w-full max-w-md sm:max-w-3xl">
           <div className="rounded-3xl border border-gray-200 bg-white/90 backdrop-blur overflow-hidden shadow-sm">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Profil public
+                Profil privé
               </p>
               <span className="text-sm font-medium text-gray-700">
                 @{userData.username}
@@ -176,10 +185,19 @@ export default async function DashboardPage({
   });
 
   return (
-    <div className="relative min-h-screen p-4 sm:p-6 lg:p-10 flex justify-center">
+    <div className="relative min-h-screen p-4 sm:p-6 lg:p-10 flex flex-col items-center">
+      <div className="fixed left-4 top-4 z-10 hidden sm:block sm:left-6 sm:top-6 lg:left-10 lg:top-10">
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-full border border-gray-200 bg-white/90 px-4 py-2.5 text-sm font-semibold text-gray-800 shadow-sm backdrop-blur transition hover:bg-gray-50 hover:shadow sm:px-5 sm:py-2"
+          aria-label="Retour à l'accueil En ce moment"
+        >
+          En ce moment
+        </Link>
+      </div>
       <div className="w-full max-w-md sm:max-w-3xl">
         <div className="rounded-3xl border border-gray-200 bg-white/90 backdrop-blur overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-gray-200">
             <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
               Profil public
             </span>

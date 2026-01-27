@@ -868,13 +868,21 @@ export default function DashboardPage() {
                       </div>
 
                       <div className="mt-4">
-                        <p className="text-xs text-gray-500 mb-2">
-                          Ajouter une phrase (doit contenir {"{task}"})
+                        <p className="mb-2 text-xs font-medium text-red-600">
+                          Ajouter une phrase personnalisée
+                        </p>
+                        <p className="mb-2 text-xs text-red-600/90">
+                          Ta phrase doit contenir{" "}
+                          <code className="rounded bg-red-50 px-1 font-mono text-red-700">
+                            {"{task}"}
+                          </code>
+                          , remplacé par le nom de ta tâche. Ex. : « Je fais{" "}
+                          {"{task}"} » → « Je fais du sport ».
                         </p>
                         <div className="flex gap-2">
                           <input
                             className="flex-1 px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
-                            placeholder="ex: Je suis sur {task}"
+                            placeholder="ex: Je suis en train de {task}"
                             disabled={activitySaving}
                             value={newPhraseText}
                             onChange={(e) => {

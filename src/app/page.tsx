@@ -11,17 +11,19 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-linear-to-b from-fuchsia-50 via-white to-white">
-      <header className="mx-auto max-w-6xl px-6 pt-6">
-        <div className="flex items-center justify-between">
+      <header className="mx-auto max-w-6xl px-4 pt-4 sm:px-6 sm:pt-6">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-gray-900 font-extrabold tracking-tight"
+            className="inline-flex shrink-0 items-center gap-2 text-gray-900 font-extrabold tracking-tight"
             aria-label="En ce moment"
           >
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gray-900 text-white shadow-sm">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-white shadow-sm sm:h-9 sm:w-9">
               E
             </span>
-            <span className="text-base sm:text-lg">En ce moment</span>
+            <span className="hidden whitespace-nowrap text-base sm:inline sm:text-lg">
+              En ce moment
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm text-gray-600">
@@ -36,27 +38,27 @@ export default async function Home() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center justify-center rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 transition"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-gray-900 px-3 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-gray-800 transition sm:min-h-0 sm:px-4 sm:py-2 sm:text-sm"
               >
-                Mon dashboard
+                <span className="whitespace-nowrap">Mon dashboard</span>
               </Link>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className="inline-flex items-center justify-center rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-white/80 px-3 py-2.5 text-xs font-semibold text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition sm:min-h-0 sm:px-4 sm:py-2 sm:text-sm"
                 >
-                  Se connecter
+                  <span className="whitespace-nowrap">Se connecter</span>
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center justify-center rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 transition"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-gray-900 px-3 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-gray-800 transition sm:min-h-0 sm:px-4 sm:py-2 sm:text-sm"
                 >
-                  Créer un compte
+                  <span className="whitespace-nowrap">Créer un compte</span>
                 </Link>
               </>
             )}
@@ -67,9 +69,11 @@ export default async function Home() {
       <main className="mx-auto max-w-6xl px-6 pb-20 pt-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <section className="lg:col-span-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/80 px-4 py-2 text-sm text-gray-700 shadow-sm">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-              <span>Minimaliste • activité • statut • page publique</span>
+            <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-gray-200 bg-white/80 px-3 py-1.5 text-xs text-gray-700 shadow-sm sm:px-4 sm:py-2 sm:text-sm">
+              <span className="shrink-0 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 sm:h-2 sm:w-2" />
+              <span className="min-w-0 wrap-break-word">
+                Minimaliste • activité • statut • page publique
+              </span>
             </div>
 
             <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.02]">
@@ -395,11 +399,26 @@ export default async function Home() {
             </div>
           </div>
         </section>
-
-        <footer className="mt-14 pb-6 text-center text-xs text-gray-500">
-          © {new Date().getFullYear()} En ce moment
-        </footer>
       </main>
+
+      <footer
+        className="mt-20 w-full overflow-hidden bg-linear-to-b from-slate-50/60 via-white/80 to-slate-100/70 pt-20 pb-12 text-center backdrop-blur-xl"
+        aria-label="Pied de page"
+      >
+        {/* Grand marqueur centré */}
+        <p
+          className="text-4xl font-extrabold tracking-[0.2em] text-slate-300/90 selection:bg-slate-200/50 sm:text-7xl md:text-8xl lg:text-9xl"
+          style={{ textShadow: "0 1px 2px rgba(255,255,255,0.9)" }}
+        >
+          EN CE MOMENT
+        </p>
+
+        <div className="mx-auto mt-10 max-w-2xl pt-6">
+          <p className="mt-8 text-xs tracking-wide text-slate-400">
+            © {new Date().getFullYear()}
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
