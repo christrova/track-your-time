@@ -32,15 +32,22 @@ export const SideBar = () => {
   };
 
   return (
-    <nav className="w-64 shrink-0 sticky top-0 h-screen overflow-y-auto bg-[#101827] border-r border-gray-800">
+    <nav className="w-72 shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-white/30 bg-white/40 backdrop-blur-xl">
       <div className="p-6">
-        <div className="h-20 flex items-center pb-6 border-b border-gray-700 flex-col">
-          <h2 className="text-2xl font-bold text-[#2ecfcf] leading-tight">
-            Gestion du temps
-          </h2>
-          <p className="text-gray-300 font-semibold flex   mt-1">
-            {userData.username}
-          </p>
+        <div className="pb-6 border-b border-gray-200/60">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-gray-900 text-white shadow-sm">
+              E
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-extrabold tracking-tight text-gray-900 leading-tight">
+                En ce moment
+              </p>
+              <p className="text-sm text-gray-600 truncate">
+                @{userData?.username || "—"}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-1 mt-5">
@@ -53,15 +60,15 @@ export const SideBar = () => {
                 key={tab.href}
                 href={tab.href}
                 className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                  flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200
                   ${
                     active
-                      ? "bg-[#142C37] text-[#04D3C9]  font-semibold"
-                      : "text-gray-300 hover:text-white"
+                      ? "bg-white/80 text-gray-900 shadow-sm ring-1 ring-gray-200 font-semibold"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
                   }
                 `}
               >
-                <Icon className="text-xl" />
+                <Icon className="text-xl shrink-0" />
                 <span className="text-sm font-medium">{tab.name}</span>
               </Link>
             );

@@ -656,34 +656,37 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-10">
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">
-            Un aperçu simple de ton profil et de tes tâches.
-          </p>
+    <div className="min-h-screen p-6 lg:p-10">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+              Tableau de bord
+            </h1>
+            <p className="mt-1 text-gray-600">
+              Une vue simple, moderne et lisible de ton activité.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/settings"
+            className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur px-5 py-2 text-sm font-semibold text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition"
+          >
+            <HiPencil className="text-lg" />
+            Paramètres
+          </Link>
         </div>
-        <Link
-          href="/dashboard/settings"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-        >
-          <HiPencil className="text-lg" />
-          Éditer
-        </Link>
-      </div>
 
-      {error && (
-        <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
+        {error && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50/80 backdrop-blur px-4 py-3 text-sm text-red-700 shadow-sm">
+            {error}
+          </div>
+        )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
         {/* PREVIEW / PROFIL */}
         <section className="xl:col-span-8">
-          <div className="rounded-md border border-gray-200 bg-white overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur overflow-hidden shadow-sm">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/60">
               <div className="inline-flex items-center gap-2">
                 <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Preview
@@ -692,12 +695,12 @@ export default function DashboardPage() {
                   <Link
                     href={publicProfileHref}
                     target="_blank"
-                    className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition"
                   >
                     Page publique
                   </Link>
                 ) : (
-                  <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                  <span className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-800 ring-1 ring-gray-200 shadow-sm">
                     Page publique
                   </span>
                 )}
@@ -725,11 +728,12 @@ export default function DashboardPage() {
                 profession={userData?.profession}
                 initials={initials}
                 links={socialLinks}
+                bannerColorId={(userData as any)?.banner_color_id}
               />
 
               <div className="px-6 pb-6">
                 {/* Status + activity (bottom, centered) */}
-                <div className="mt-6 flex flex-col items-center gap-3">
+                <div className="mt-6 flex flex-col items-center gap-4">
                   <PresenceStatusSelector
                     value={presenceStatus}
                     onChange={updateStatus}
@@ -738,7 +742,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-center gap-4">
                     <button
                       onClick={() => setActivityOpen((v) => !v)}
-                      className="p-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50"
+                      className="p-2 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur text-gray-800 shadow-sm hover:bg-white transition"
                       aria-label="Modifier la phrase"
                       disabled={activitySaving}
                     >
@@ -750,13 +754,13 @@ export default function DashboardPage() {
                         currentPhrase.label.split("{task}");
                       const sizeCh = Math.max(taskText.trim().length, 8);
                       return (
-                        <div className="text-xl md:text-2xl font-semibold text-gray-900 flex flex-wrap items-baseline gap-2 justify-center">
+                        <div className="text-xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex flex-wrap items-baseline gap-2 justify-center">
                           <span>{before?.trim()}</span>
                           <input
                             value={taskText}
                             onChange={(e) => setTaskText(e.target.value)}
                             placeholder="tâche"
-                            className="w-auto bg-transparent border-b border-dashed border-gray-400 focus:outline-none focus:border-gray-700 placeholder:text-gray-400"
+                            className="w-auto bg-transparent border-b border-dashed border-gray-400 focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
                             style={{ width: `${sizeCh}ch`, maxWidth: "70vw" }}
                             disabled={activitySaving}
                             onKeyDown={(e) => {
@@ -790,14 +794,14 @@ export default function DashboardPage() {
 
                 {/* Phrase picker */}
                 {activityOpen && (
-                  <div className="mt-4 rounded-md border border-gray-200 bg-white p-4">
+                  <div className="mt-4 rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-4 shadow-sm">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setPhraseCategory("action")}
                         className={`px-3 py-1.5 rounded-md text-sm border ${
                           phraseCategory === "action"
-                            ? "bg-gray-900 text-white border-gray-900"
-                            : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                            ? "bg-gray-900 text-white border-gray-900 shadow-sm"
+                            : "border-gray-200 bg-white/70 text-gray-800 hover:bg-white"
                         }`}
                         disabled={activitySaving}
                       >
@@ -807,8 +811,8 @@ export default function DashboardPage() {
                         onClick={() => setPhraseCategory("projet")}
                         className={`px-3 py-1.5 rounded-md text-sm border ${
                           phraseCategory === "projet"
-                            ? "bg-gray-900 text-white border-gray-900"
-                            : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                            ? "bg-gray-900 text-white border-gray-900 shadow-sm"
+                            : "border-gray-200 bg-white/70 text-gray-800 hover:bg-white"
                         }`}
                         disabled={activitySaving}
                       >
@@ -818,7 +822,7 @@ export default function DashboardPage() {
                         <button
                           onClick={saveCurrentActivity}
                           disabled={activitySaving}
-                          className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm disabled:opacity-50"
+                          className="px-4 py-2 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold shadow-sm disabled:opacity-50 transition"
                         >
                           {activitySaving ? "..." : "Enregistrer"}
                         </button>
@@ -890,39 +894,6 @@ export default function DashboardPage() {
                         </p>
                       )}
                     </div>
-
-                    <div className="mt-4">
-                      <p className="text-xs text-gray-500 mb-2">
-                        Tâches connues (générales)
-                      </p>
-                      <input
-                        value={knownTaskQuery}
-                        onChange={(e) => setKnownTaskQuery(e.target.value)}
-                        placeholder="Rechercher une tâche…"
-                        className="mb-2 w-full px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
-                        disabled={activitySaving}
-                      />
-                      <div className="flex flex-wrap gap-2">
-                        {knownTaskSuggestions.slice(0, 18).map((name) => (
-                          <button
-                            key={name}
-                            onClick={() => {
-                              setTaskText(name);
-                              if (name !== currentTaskName) {
-                                setPreviousTaskName(currentTaskName);
-                                setPendingTaskName(name);
-                                setPendingTag("");
-                                setSwitchOpen(true);
-                              }
-                            }}
-                            className="px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm"
-                            disabled={activitySaving}
-                          >
-                            {name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 )}
 
@@ -973,8 +944,8 @@ export default function DashboardPage() {
         </section>
 
         {/* COLONNE DROITE */}
-        <aside className="xl:col-span-4 space-y-2">
-          <div className="rounded-md border border-gray-200 bg-white p-5 flex items-center justify-between">
+        <aside className="xl:col-span-4 space-y-3">
+          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-gray-900">
                 {publicMode ? "Publique" : "Privé"}
@@ -1007,7 +978,7 @@ export default function DashboardPage() {
               </button>
             </label>
           </div>
-          <div className="rounded-md border border-gray-200 bg-white p-5 flex items-center justify-between">
+          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm flex items-center justify-between">
             <p className="text-sm font-semibold text-gray-900">
               Ajouter une tâche
             </p>
@@ -1015,14 +986,14 @@ export default function DashboardPage() {
               type="button"
               onClick={() => setIsCreateTaskOpen(true)}
               disabled={!userId}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-gray-900 text-white shadow-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
               aria-label="Ajouter une tâche"
             >
               <HiPlus className="text-xl" />
             </button>
           </div>
 
-          <div className="rounded-md border border-gray-200 bg-white p-5">
+          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-gray-900">
                 Tâches à venir
@@ -1039,7 +1010,7 @@ export default function DashboardPage() {
                   <button
                     key={t.id}
                     onClick={() => setSelectedTask(t)}
-                    className="w-full text-left px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                    className="w-full text-left px-4 py-3 rounded-2xl border border-gray-200 bg-white/70 hover:bg-white transition"
                   >
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {t.name}
@@ -1053,7 +1024,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-md border border-gray-200 bg-white p-5">
+          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-gray-900">
                 Actions récurrentes
@@ -1070,7 +1041,7 @@ export default function DashboardPage() {
                   <button
                     key={t.id}
                     onClick={() => setSelectedTask(t)}
-                    className="w-full text-left px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                    className="w-full text-left px-4 py-3 rounded-2xl border border-gray-200 bg-white/70 hover:bg-white transition"
                   >
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {t.name}
@@ -1084,20 +1055,20 @@ export default function DashboardPage() {
         </aside>
       </div>
 
-      <TaskDetailsModal
-        isOpen={Boolean(selectedTask) || isCreateTaskOpen}
-        task={selectedTask}
-        mode={isCreateTaskOpen ? "create" : "edit"}
-        onClose={() => {
-          setSelectedTask(null);
-          setIsCreateTaskOpen(false);
-        }}
-        onSave={handleUpsertTask}
-        isSaving={isCreateTaskOpen ? isCreatingTask : isSaving}
-      />
+        <TaskDetailsModal
+          isOpen={Boolean(selectedTask) || isCreateTaskOpen}
+          task={selectedTask}
+          mode={isCreateTaskOpen ? "create" : "edit"}
+          onClose={() => {
+            setSelectedTask(null);
+            setIsCreateTaskOpen(false);
+          }}
+          onSave={handleUpsertTask}
+          isSaving={isCreateTaskOpen ? isCreatingTask : isSaving}
+        />
 
       {/* Switch current task confirmation (tag required) */}
-      {switchOpen && (
+        {switchOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={(e) => {
@@ -1111,7 +1082,7 @@ export default function DashboardPage() {
         >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
           <div
-            className="relative bg-white rounded-md shadow-xl w-full max-w-md overflow-hidden"
+            className="relative bg-white/90 backdrop-blur rounded-3xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200"
             role="dialog"
             aria-modal="true"
           >
@@ -1170,7 +1141,7 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
-            <div className="p-5 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-3">
+            <div className="p-5 border-t border-gray-200 bg-white/70 flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -1180,7 +1151,7 @@ export default function DashboardPage() {
                   setTaskText(currentTaskName || previousTaskName);
                 }}
                 disabled={switchLoading}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 text-gray-800 bg-white/70 border border-gray-200 rounded-2xl hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 Annuler
               </button>
@@ -1188,7 +1159,7 @@ export default function DashboardPage() {
                 type="button"
                 onClick={confirmSwitchTask}
                 disabled={switchLoading || !normalizeTaskTag(pendingTag)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-gray-900 text-white rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {switchLoading ? "..." : "Valider"}
               </button>
@@ -1196,6 +1167,7 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

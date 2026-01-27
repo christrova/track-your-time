@@ -23,18 +23,18 @@ export function PresenceStatusSelector({ value, onChange }: Props) {
   };
 
   const base =
-    "px-3 py-1.5 rounded-lg text-sm border transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+    "px-3 py-1.5 rounded-full text-sm font-semibold border shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
-    <div className="inline-flex items-center gap-2">
+    <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/70 backdrop-blur px-2 py-2 shadow-sm">
       <button
         type="button"
         onClick={() => set("WORKING")}
         disabled={loading}
         className={`${base} ${
           value === "WORKING"
-            ? "bg-blue-600 text-white border-blue-600"
-            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+            ? "bg-gray-900 text-white border-gray-900"
+            : "bg-white/70 text-gray-700 border-gray-200 hover:bg-white"
         }`}
       >
         Travail
@@ -45,8 +45,8 @@ export function PresenceStatusSelector({ value, onChange }: Props) {
         disabled={loading}
         className={`${base} ${
           value === "PAUSE"
-            ? "bg-yellow-500 text-white border-yellow-500"
-            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+            ? "bg-yellow-400 text-gray-900 border-yellow-300"
+            : "bg-white/70 text-gray-700 border-gray-200 hover:bg-white"
         }`}
       >
         Pause
@@ -57,8 +57,8 @@ export function PresenceStatusSelector({ value, onChange }: Props) {
         disabled={loading}
         className={`${base} ${
           value === "OFFLINE"
-            ? "bg-gray-900 text-white border-gray-900"
-            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+            ? "bg-gray-100 text-gray-900 border-gray-200"
+            : "bg-white/70 text-gray-700 border-gray-200 hover:bg-white"
         }`}
       >
         Hors ligne

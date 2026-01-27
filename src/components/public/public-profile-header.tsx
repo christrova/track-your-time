@@ -2,6 +2,7 @@ import type { Link as UserLink } from "@/lib/datatype";
 import { HiLink } from "react-icons/hi";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { HiGlobeAlt } from "react-icons/hi";
+import { getThemeById } from "@/lib/banner-themes";
 
 type Props = {
   firstname?: string | null;
@@ -10,6 +11,7 @@ type Props = {
   profession?: string | null;
   initials: string;
   links: UserLink[];
+  bannerColorId?: string | null;
 };
 
 const BANNER_HEIGHT = 170; // px
@@ -50,6 +52,7 @@ export function PublicProfileHeader({
   profession,
   initials,
   links,
+  bannerColorId,
 }: Props) {
   const sortedLinks = (Array.isArray(links) ? links : [])
     .filter((l) => Boolean(l?.network_link))
@@ -58,16 +61,28 @@ export function PublicProfileHeader({
     .map((l) => ({ ...l, ...iconForNetwork(l.network_name) }));
 
   const displayName = displayNameFor({ firstname, lastname, username });
+  const bannerTheme = getThemeById(bannerColorId);
 
   return (
     <div className="w-full">
       {/* Banner */}
       <div
-        className="relative w-full bg-linear-to-br from-sky-600 via-blue-700 to-indigo-700"
+        className="relative w-full"
         style={{ height: BANNER_HEIGHT }}
       >
-        <div className="absolute inset-0 opacity-30 blur-2xl bg-linear-to-br from-white/40 via-transparent to-black/20" />
-        <div className="absolute inset-0 bg-linear-to-t from-black/15 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div
+            className="absolute inset-0"
+            style={{ backgroundImage: bannerTheme.gradient }}
+          />
+          <div
+            className="absolute -inset-12 opacity-70 blur-3xl"
+            style={{ backgroundImage: bannerTheme.gradient }}
+            aria-hidden="true"
+          />
+          <div className="absolute inset-0 bg-white/5 backdrop-blur-md" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/15 via-transparent to-transparent" />
+        </div>
       </div>
 
       {/* Content */}

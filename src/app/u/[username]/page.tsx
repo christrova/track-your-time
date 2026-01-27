@@ -182,6 +182,7 @@ export default async function DashboardPage({
               profession={userData.profession}
               initials={initials}
               links={Array.isArray(userLinks) ? userLinks : []}
+              bannerColorId={(userData as any).banner_color_id}
             />
 
             <div className="px-6 pb-6">
