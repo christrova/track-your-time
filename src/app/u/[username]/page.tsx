@@ -96,7 +96,7 @@ export default async function DashboardPage({
 
   if (!userData.public_mode) {
     return (
-      <div className="relative min-h-screen bg-linear-to-b from-white/60 via-white/30 to-white/60 p-6 lg:p-10">
+      <div className="relative min-h-screen bg-linear-to-b from-white/60 via-white/30 to-white/60 p-4 sm:p-6 lg:p-10 flex justify-center">
         {/* theme-based blurred background (like landing, derived from banner color) */}
         <div
           className="pointer-events-none absolute -top-28 -left-28 h-80 w-80 rounded-full blur-3xl opacity-25 -z-10"
@@ -109,7 +109,7 @@ export default async function DashboardPage({
           aria-hidden="true"
         />
 
-        <div className="max-w-3xl mx-auto">
+        <div className="w-full max-w-md sm:max-w-3xl">
           <div className="rounded-3xl border border-gray-200 bg-white/90 backdrop-blur overflow-hidden shadow-sm">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -176,20 +176,8 @@ export default async function DashboardPage({
   });
 
   return (
-    <div className="relative min-h-screen p-6 lg:p-10">
-      {/* theme-based blurred background (like landing, derived from banner color) */}
-      <div
-        className="pointer-events-none absolute -top-28 -left-28 h-80 w-80 rounded-full blur-3xl opacity-25 -z-10"
-        style={{ backgroundImage: theme.gradient }}
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -bottom-32 -right-32 h-104 w-104 rounded-full blur-3xl opacity-20 -z-10"
-        style={{ backgroundImage: theme.gradient }}
-        aria-hidden="true"
-      />
-
-      <div className="max-w-3xl mx-auto">
+    <div className="relative min-h-screen p-4 sm:p-6 lg:p-10 flex justify-center">
+      <div className="w-full max-w-md sm:max-w-3xl">
         <div className="rounded-3xl border border-gray-200 bg-white/90 backdrop-blur overflow-hidden shadow-sm">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
             <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">

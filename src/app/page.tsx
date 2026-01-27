@@ -142,7 +142,9 @@ export default async function Home() {
                         <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
                         Travail
                       </span>
-                      <span className="text-xs text-gray-500">En ce moment</span>
+                      <span className="text-xs text-gray-500">
+                        En ce moment
+                      </span>
                     </div>
 
                     <p className="mt-5 max-w-full text-[clamp(1.2rem,3.8vw,2.25rem)] font-extrabold tracking-tight leading-[1.05] text-gray-900">
@@ -202,12 +204,6 @@ export default async function Home() {
                             </p>
                           </div>
                         ))}
-                      </div>
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
-                          État vide: Aucune activité récente.
-                        </span>
-                        <span className="text-xs text-gray-400">lecture seule</span>
                       </div>
                     </div>
                   </div>
