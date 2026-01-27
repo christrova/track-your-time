@@ -88,15 +88,27 @@ export function PublicProfileHeader({
       {/* Content */}
       <div className="relative px-6 pb-8">
         {/* Avatar */}
-        <div className="flex justify-center -mt-16">
+        <div className="flex justify-center -mt-[84px] sm:-mt-20 mb-2">
           <div
-            className="relative rounded-full overflow-hidden shadow-xl ring-4 ring-white/90 bg-linear-to-br from-blue-600 to-cyan-500 flex items-center justify-center"
-            style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-            aria-label="Avatar"
+            className="relative"
           >
-            <span className="text-white text-4xl font-bold tracking-wide">
-              {initials}
-            </span>
+            {/* soft halo */}
+            <div
+              className="pointer-events-none absolute inset-0 translate-y-4 scale-110 rounded-full bg-black/20 blur-3xl opacity-40"
+              aria-hidden="true"
+            />
+            <div className="relative rounded-full bg-white/40 backdrop-blur-xl p-[4px] shadow-[0_24px_60px_rgba(15,23,42,0.35)]">
+              <div
+                className="relative flex items-center justify-center rounded-full overflow-hidden"
+                style={{ width: AVATAR_SIZE, height: AVATAR_SIZE, backgroundImage: bannerTheme.gradient }}
+                aria-label="Avatar"
+              >
+                <div className="absolute inset-0 bg-linear-to-b from-white/45 via-white/10 to-transparent opacity-80" />
+                <span className="relative text-white text-4xl font-bold tracking-wide">
+                  {initials}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
