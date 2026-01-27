@@ -683,91 +683,104 @@ export default function DashboardPage() {
         )}
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
-        {/* PREVIEW / PROFIL */}
-        <section className="xl:col-span-8">
-          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur overflow-hidden shadow-sm">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/60">
-              <div className="inline-flex items-center gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Preview
-                </span>
+          {/* PREVIEW / PROFIL */}
+          <section className="xl:col-span-8">
+            <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur overflow-hidden shadow-sm">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/60">
+                <div className="inline-flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Preview
+                  </span>
+                  {publicProfileHref ? (
+                    <Link
+                      href={publicProfileHref}
+                      target="_blank"
+                      className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition"
+                    >
+                      Page publique
+                    </Link>
+                  ) : (
+                    <span className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-800 ring-1 ring-gray-200 shadow-sm">
+                      Page publique
+                    </span>
+                  )}
+                </div>
                 {publicProfileHref ? (
                   <Link
                     href={publicProfileHref}
                     target="_blank"
-                    className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition"
+                    className="text-sm font-medium text-gray-700 hover:underline"
                   >
-                    Page publique
+                    {userData?.username}
                   </Link>
                 ) : (
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-800 ring-1 ring-gray-200 shadow-sm">
-                    Page publique
+                  <span className="text-sm font-medium text-gray-700">
+                    {userData?.username}
                   </span>
                 )}
               </div>
-              {publicProfileHref ? (
-                <Link
-                  href={publicProfileHref}
-                  target="_blank"
-                  className="text-sm font-medium text-gray-700 hover:underline"
-                >
-                  {userData?.username}
-                </Link>
-              ) : (
-                <span className="text-sm font-medium text-gray-700">
-                  {userData?.username}
-                </span>
-              )}
-            </div>
 
-            <div className="p-0">
-              <ProfileHeader
-                firstname={userData?.firstname}
-                lastname={userData?.lastname}
-                username={userData?.username}
-                profession={userData?.profession}
-                initials={initials}
-                links={socialLinks}
-                bannerColorId={(userData as any)?.banner_color_id}
-                userId={userId}
-                avatarUrl={(userData as any)?.avatar_url}
-              />
+              <div className="p-0">
+                <ProfileHeader
+                  firstname={userData?.firstname}
+                  lastname={userData?.lastname}
+                  username={userData?.username}
+                  profession={userData?.profession}
+                  initials={initials}
+                  links={socialLinks}
+                  bannerColorId={(userData as any)?.banner_color_id}
+                  userId={userId}
+                  avatarUrl={(userData as any)?.avatar_url}
+                />
 
-              <div className="px-6 pb-6">
-                {/* Status + activity (bottom, centered) */}
-                <div className="mt-6 flex flex-col items-center gap-4">
-                  <PresenceStatusSelector
-                    value={presenceStatus}
-                    onChange={updateStatus}
-                  />
+                <div className="px-6 pb-6">
+                  {/* Status + activity (bottom, centered) */}
+                  <div className="mt-6 flex flex-col items-center gap-4">
+                    <PresenceStatusSelector
+                      value={presenceStatus}
+                      onChange={updateStatus}
+                    />
 
-                  <div className="flex items-center justify-center gap-4">
-                    <button
-                      onClick={() => setActivityOpen((v) => !v)}
-                      className="p-2 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur text-gray-800 shadow-sm hover:bg-white transition"
-                      aria-label="Modifier la phrase"
-                      disabled={activitySaving}
-                    >
-                      <HiPencil className="text-xl" />
-                    </button>
+                    <div className="flex items-center justify-center gap-4">
+                      <button
+                        onClick={() => setActivityOpen((v) => !v)}
+                        className="p-2 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur text-gray-800 shadow-sm hover:bg-white transition"
+                        aria-label="Modifier la phrase"
+                        disabled={activitySaving}
+                      >
+                        <HiPencil className="text-xl" />
+                      </button>
 
-                    {(() => {
-                      const [before, after] =
-                        currentPhrase.label.split("{task}");
-                      const sizeCh = Math.max(taskText.trim().length, 8);
-                      return (
-                        <div className="text-xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex flex-wrap items-baseline gap-2 justify-center">
-                          <span>{before?.trim()}</span>
-                          <input
-                            value={taskText}
-                            onChange={(e) => setTaskText(e.target.value)}
-                            placeholder="tâche"
-                            className="w-auto bg-transparent border-b border-dashed border-gray-400 focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
-                            style={{ width: `${sizeCh}ch`, maxWidth: "70vw" }}
-                            disabled={activitySaving}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
+                      {(() => {
+                        const [before, after] =
+                          currentPhrase.label.split("{task}");
+                        const sizeCh = Math.max(taskText.trim().length, 8);
+                        return (
+                          <div className="text-xl md:text-3xl font-extrabold tracking-tight text-gray-900 flex flex-wrap items-baseline gap-2 justify-center">
+                            <span>{before?.trim()}</span>
+                            <input
+                              value={taskText}
+                              onChange={(e) => setTaskText(e.target.value)}
+                              placeholder="tâche"
+                              className="w-auto bg-transparent border-b border-dashed border-gray-400 focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
+                              style={{ width: `${sizeCh}ch`, maxWidth: "70vw" }}
+                              disabled={activitySaving}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  const nextName = taskText.trim();
+                                  if (
+                                    nextName &&
+                                    nextName !== currentTaskName
+                                  ) {
+                                    setPreviousTaskName(currentTaskName);
+                                    setPendingTaskName(nextName);
+                                    setPendingTag("");
+                                    setSwitchOpen(true);
+                                  }
+                                }
+                              }}
+                              onBlur={() => {
                                 const nextName = taskText.trim();
                                 if (nextName && nextName !== currentTaskName) {
                                   setPreviousTaskName(currentTaskName);
@@ -775,287 +788,277 @@ export default function DashboardPage() {
                                   setPendingTag("");
                                   setSwitchOpen(true);
                                 }
-                              }
-                            }}
-                            onBlur={() => {
-                              const nextName = taskText.trim();
-                              if (nextName && nextName !== currentTaskName) {
-                                setPreviousTaskName(currentTaskName);
-                                setPendingTaskName(nextName);
-                                setPendingTag("");
-                                setSwitchOpen(true);
-                              }
-                            }}
-                          />
-                          <span>{after?.trim()}</span>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-
-                {/* Phrase picker */}
-                {activityOpen && (
-                  <div className="mt-4 rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-4 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setPhraseCategory("action")}
-                        className={`px-3 py-1.5 rounded-md text-sm border ${
-                          phraseCategory === "action"
-                            ? "bg-gray-900 text-white border-gray-900 shadow-sm"
-                            : "border-gray-200 bg-white/70 text-gray-800 hover:bg-white"
-                        }`}
-                        disabled={activitySaving}
-                      >
-                        Action
-                      </button>
-                      <button
-                        onClick={() => setPhraseCategory("projet")}
-                        className={`px-3 py-1.5 rounded-md text-sm border ${
-                          phraseCategory === "projet"
-                            ? "bg-gray-900 text-white border-gray-900 shadow-sm"
-                            : "border-gray-200 bg-white/70 text-gray-800 hover:bg-white"
-                        }`}
-                        disabled={activitySaving}
-                      >
-                        Projet
-                      </button>
-                      <div className="ml-auto flex items-center gap-2">
-                        <button
-                          onClick={saveCurrentActivity}
-                          disabled={activitySaving}
-                          className="px-4 py-2 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold shadow-sm disabled:opacity-50 transition"
-                        >
-                          {activitySaving ? "..." : "Enregistrer"}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {filteredPhrases.map((p) => {
-                        const isCustom = p.id.startsWith("c_");
-                        return (
-                          <div key={p.id} className="flex gap-2">
-                            <button
-                              onClick={() => setPhraseId(p.id)}
-                              className={`flex-1 text-left px-3 py-2 rounded-md border text-sm transition-colors ${
-                                phraseId === p.id
-                                  ? "bg-gray-900 text-white border-gray-900"
-                                  : "border-gray-200 text-gray-700 hover:bg-gray-50"
-                              }`}
-                              disabled={activitySaving}
-                            >
-                              {p.label.replace("{task}", "…")}
-                            </button>
-                            {isCustom && (
-                              <button
-                                type="button"
-                                onClick={() => deleteCustomPhrase(p.id)}
-                                disabled={activitySaving}
-                                className="shrink-0 px-2 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50"
-                                aria-label="Supprimer la phrase"
-                                title="Supprimer"
-                              >
-                                <HiTrash className="text-lg" />
-                              </button>
-                            )}
+                              }}
+                            />
+                            <span>{after?.trim()}</span>
                           </div>
                         );
-                      })}
-                    </div>
-
-                    <div className="mt-4">
-                      <p className="text-xs text-gray-500 mb-2">
-                        Ajouter une phrase (doit contenir {"{task}"})
-                      </p>
-                      <div className="flex gap-2">
-                        <input
-                          className="flex-1 px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
-                          placeholder="ex: Je suis sur {task}"
-                          disabled={activitySaving}
-                          value={newPhraseText}
-                          onChange={(e) => {
-                            setNewPhraseText(e.target.value);
-                            if (newPhraseError) setNewPhraseError(null);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") addCustomPhrase();
-                          }}
-                        />
-                        <button
-                          onClick={addCustomPhrase}
-                          className="px-3 py-2 rounded-md border border-gray-200 text-gray-800 hover:bg-gray-50"
-                          disabled={activitySaving}
-                        >
-                          Ajouter
-                        </button>
-                      </div>
-                      {newPhraseError && (
-                        <p className="mt-2 text-xs text-red-600">
-                          {newPhraseError}
-                        </p>
-                      )}
+                      })()}
                     </div>
                   </div>
-                )}
 
-                {/* Recent tasks */}
-                <div className="mt-8">
-                  <div className="w-full rounded-md border border-gray-200 p-5">
-                    <p className="text-sm font-semibold text-gray-900">
-                      Tâches récentes
-                    </p>
-                    <div className="mt-4">
-                      {recentTasks.length === 0 ? (
-                        <p className="text-sm text-gray-500">Aucune tâche.</p>
-                      ) : (
-                        <div className="max-h-[340px] overflow-y-auto pr-1 space-y-2">
-                          {recentTasks.map((t) => (
-                            <button
-                              key={t.id}
-                              onClick={() => setSelectedTask(t)}
-                              className="w-full text-left px-4 py-4 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
-                            >
-                              <div className="flex items-center justify-between gap-4">
-                                <div className="min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">
-                                    {t.name}
-                                  </p>
-                                  {t.tag && (
-                                    <p className="mt-1 text-xs text-gray-500 truncate">
-                                      {t.tag}
-                                    </p>
-                                  )}
-                                </div>
-                                <p className="text-sm text-gray-500 shrink-0">
-                                  {formatRelativeTimeFromNow(
-                                    finishedAtForTask(t),
-                                  )}
-                                </p>
-                              </div>
-                            </button>
-                          ))}
+                  {/* Phrase picker */}
+                  {activityOpen && (
+                    <div className="mt-4 rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-4 shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setPhraseCategory("action")}
+                          className={`px-3 py-1.5 rounded-md text-sm border ${
+                            phraseCategory === "action"
+                              ? "bg-gray-900 text-white border-gray-900 shadow-sm"
+                              : "border-gray-200 bg-white/70 text-gray-800 hover:bg-white"
+                          }`}
+                          disabled={activitySaving}
+                        >
+                          Action
+                        </button>
+                        <button
+                          onClick={() => setPhraseCategory("projet")}
+                          className={`px-3 py-1.5 rounded-md text-sm border ${
+                            phraseCategory === "projet"
+                              ? "bg-gray-900 text-white border-gray-900 shadow-sm"
+                              : "border-gray-200 bg-white/70 text-gray-800 hover:bg-white"
+                          }`}
+                          disabled={activitySaving}
+                        >
+                          Projet
+                        </button>
+                        <div className="ml-auto flex items-center gap-2">
+                          <button
+                            onClick={saveCurrentActivity}
+                            disabled={activitySaving}
+                            className="px-4 py-2 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold shadow-sm disabled:opacity-50 transition"
+                          >
+                            {activitySaving ? "..." : "Enregistrer"}
+                          </button>
                         </div>
-                      )}
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {filteredPhrases.map((p) => {
+                          const isCustom = p.id.startsWith("c_");
+                          return (
+                            <div key={p.id} className="flex gap-2">
+                              <button
+                                onClick={() => setPhraseId(p.id)}
+                                className={`flex-1 text-left px-3 py-2 rounded-md border text-sm transition-colors ${
+                                  phraseId === p.id
+                                    ? "bg-gray-900 text-white border-gray-900"
+                                    : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                                }`}
+                                disabled={activitySaving}
+                              >
+                                {p.label.replace("{task}", "…")}
+                              </button>
+                              {isCustom && (
+                                <button
+                                  type="button"
+                                  onClick={() => deleteCustomPhrase(p.id)}
+                                  disabled={activitySaving}
+                                  className="shrink-0 px-2 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50"
+                                  aria-label="Supprimer la phrase"
+                                  title="Supprimer"
+                                >
+                                  <HiTrash className="text-lg" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-4">
+                        <p className="text-xs text-gray-500 mb-2">
+                          Ajouter une phrase (doit contenir {"{task}"})
+                        </p>
+                        <div className="flex gap-2">
+                          <input
+                            className="flex-1 px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
+                            placeholder="ex: Je suis sur {task}"
+                            disabled={activitySaving}
+                            value={newPhraseText}
+                            onChange={(e) => {
+                              setNewPhraseText(e.target.value);
+                              if (newPhraseError) setNewPhraseError(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") addCustomPhrase();
+                            }}
+                          />
+                          <button
+                            onClick={addCustomPhrase}
+                            className="px-3 py-2 rounded-md border border-gray-200 text-gray-800 hover:bg-gray-50"
+                            disabled={activitySaving}
+                          >
+                            Ajouter
+                          </button>
+                        </div>
+                        {newPhraseError && (
+                          <p className="mt-2 text-xs text-red-600">
+                            {newPhraseError}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recent tasks */}
+                  <div className="mt-8">
+                    <div className="w-full rounded-md border border-gray-200 p-5">
+                      <p className="text-sm font-semibold text-gray-900">
+                        Tâches récentes
+                      </p>
+                      <div className="mt-4">
+                        {recentTasks.length === 0 ? (
+                          <p className="text-sm text-gray-500">Aucune tâche.</p>
+                        ) : (
+                          <div className="max-h-[340px] overflow-y-auto pr-1 space-y-2">
+                            {recentTasks.map((t) => (
+                              <button
+                                key={t.id}
+                                onClick={() => setSelectedTask(t)}
+                                className="w-full text-left px-4 py-4 rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="flex items-center justify-between gap-4">
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                      {t.name}
+                                    </p>
+                                    {t.tag && (
+                                      <p className="mt-1 text-xs text-gray-500 truncate">
+                                        {t.tag}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-gray-500 shrink-0">
+                                    {formatRelativeTimeFromNow(
+                                      finishedAtForTask(t),
+                                    )}
+                                  </p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* COLONNE DROITE */}
-        <aside className="xl:col-span-4 space-y-3">
-          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-gray-900">
-                {publicMode ? "Publique" : "Privé"}
-              </p>
-              <p className="text-sm text-gray-600">
-                {publicMode
-                  ? "Ton profil est visible."
-                  : "Ton profil est caché."}
-              </p>
+          {/* COLONNE DROITE */}
+          <aside className="xl:col-span-4 space-y-3">
+            <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">
+                  {publicMode ? "Publique" : "Privé"}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {publicMode
+                    ? "Ton profil est visible."
+                    : "Ton profil est caché."}
+                </p>
+              </div>
+              <label className="inline-flex items-center gap-3 select-none">
+                <span className="text-xs text-gray-500">
+                  {publicModeLoading ? "..." : ""}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleTogglePublicMode(!publicMode)}
+                  disabled={publicModeLoading}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    publicMode ? "bg-blue-600" : "bg-gray-300"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  aria-label="Basculer le mode public/privé"
+                  aria-pressed={publicMode}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                      publicMode ? "translate-x-5" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </label>
             </div>
-            <label className="inline-flex items-center gap-3 select-none">
-              <span className="text-xs text-gray-500">
-                {publicModeLoading ? "..." : ""}
-              </span>
+            <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm flex items-center justify-between">
+              <p className="text-sm font-semibold text-gray-900">
+                Ajouter une tâche
+              </p>
               <button
                 type="button"
-                onClick={() => handleTogglePublicMode(!publicMode)}
-                disabled={publicModeLoading}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  publicMode ? "bg-blue-600" : "bg-gray-300"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                aria-label="Basculer le mode public/privé"
-                aria-pressed={publicMode}
+                onClick={() => setIsCreateTaskOpen(true)}
+                disabled={!userId}
+                className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-gray-900 text-white shadow-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                aria-label="Ajouter une tâche"
               >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                    publicMode ? "translate-x-5" : "translate-x-1"
-                  }`}
-                />
+                <HiPlus className="text-xl" />
               </button>
-            </label>
-          </div>
-          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-900">
-              Ajouter une tâche
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsCreateTaskOpen(true)}
-              disabled={!userId}
-              className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-gray-900 text-white shadow-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              aria-label="Ajouter une tâche"
-            >
-              <HiPlus className="text-xl" />
-            </button>
-          </div>
-
-          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-gray-900">
-                Tâches à venir
-              </p>
             </div>
 
-            <div className="mt-4 space-y-2">
-              {plannedTasks.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  Aucune tâche programmée.
+            <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-gray-900">
+                  Tâches à venir
                 </p>
-              ) : (
-                plannedTasks.slice(0, 8).map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setSelectedTask(t)}
-                    className="w-full text-left px-4 py-3 rounded-2xl border border-gray-200 bg-white/70 hover:bg-white transition"
-                  >
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {t.name}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {t.start_date} {t.tag ? `• ${t.tag}` : ""}
-                    </p>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
+              </div>
 
-          <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-gray-900">
-                Actions récurrentes
-              </p>
+              <div className="mt-4 space-y-2">
+                {plannedTasks.length === 0 ? (
+                  <p className="text-sm text-gray-500">
+                    Aucune tâche programmée.
+                  </p>
+                ) : (
+                  plannedTasks.slice(0, 8).map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setSelectedTask(t)}
+                      className="w-full text-left px-4 py-3 rounded-2xl border border-gray-200 bg-white/70 hover:bg-white transition"
+                    >
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {t.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {t.start_date} {t.tag ? `• ${t.tag}` : ""}
+                      </p>
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
 
-            <div className="mt-4 space-y-2">
-              {recurringTasks.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  Aucune action récurrente.
+            <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-gray-900">
+                  Actions récurrentes
                 </p>
-              ) : (
-                recurringTasks.slice(0, 8).map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setSelectedTask(t)}
-                    className="w-full text-left px-4 py-3 rounded-2xl border border-gray-200 bg-white/70 hover:bg-white transition"
-                  >
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {t.name}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">{t.tag}</p>
-                  </button>
-                ))
-              )}
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {recurringTasks.length === 0 ? (
+                  <p className="text-sm text-gray-500">
+                    Aucune action récurrente.
+                  </p>
+                ) : (
+                  recurringTasks.slice(0, 8).map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setSelectedTask(t)}
+                      className="w-full text-left px-4 py-3 rounded-2xl border border-gray-200 bg-white/70 hover:bg-white transition"
+                    >
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {t.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{t.tag}</p>
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-        </aside>
-      </div>
+          </aside>
+        </div>
 
         <TaskDetailsModal
           isOpen={Boolean(selectedTask) || isCreateTaskOpen}
@@ -1069,106 +1072,106 @@ export default function DashboardPage() {
           isSaving={isCreateTaskOpen ? isCreatingTask : isSaving}
         />
 
-      {/* Switch current task confirmation (tag required) */}
+        {/* Switch current task confirmation (tag required) */}
         {switchOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !switchLoading) {
-              setSwitchOpen(false);
-              setPendingTaskName("");
-              setPendingTag("");
-              setTaskText(currentTaskName || previousTaskName);
-            }
-          }}
-        >
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
           <div
-            className="relative bg-white/90 backdrop-blur rounded-3xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200"
-            role="dialog"
-            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !switchLoading) {
+                setSwitchOpen(false);
+                setPendingTaskName("");
+                setPendingTag("");
+                setTaskText(currentTaskName || previousTaskName);
+              }
+            }}
           >
-            <div className="p-5 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Changer de tâche ?
-              </h3>
-              <p className="mt-1 text-sm text-gray-600">
-                {currentTaskName
-                  ? `On termine “${currentTaskName}” et on démarre “${pendingTaskName}”.`
-                  : `On démarre “${pendingTaskName}”.`}
-              </p>
-            </div>
-            <div className="p-5 space-y-3">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Tag *
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    list="tmt-task-tags-switch"
-                    value={pendingTag}
-                    onChange={(e) => setPendingTag(e.target.value)}
-                    placeholder="ex: sport, sommeil, travail…"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    disabled={switchLoading}
-                  />
-                  {(() => {
-                    const normalized = normalizeTaskTag(pendingTag);
-                    const canCreate =
-                      Boolean(normalized) &&
-                      !allTaskTags.includes(String(normalized));
-                    if (!canCreate) return null;
-                    return (
-                      <button
-                        type="button"
-                        onClick={() => addCustomTaskTag(pendingTag)}
-                        disabled={switchLoading}
-                        className="shrink-0 px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Créer ce tag"
-                      >
-                        Créer
-                      </button>
-                    );
-                  })()}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
+            <div
+              className="relative bg-white/90 backdrop-blur rounded-3xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="p-5 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Changer de tâche ?
+                </h3>
+                <p className="mt-1 text-sm text-gray-600">
+                  {currentTaskName
+                    ? `On termine “${currentTaskName}” et on démarre “${pendingTaskName}”.`
+                    : `On démarre “${pendingTaskName}”.`}
+                </p>
+              </div>
+              <div className="p-5 space-y-3">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Tag *
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      list="tmt-task-tags-switch"
+                      value={pendingTag}
+                      onChange={(e) => setPendingTag(e.target.value)}
+                      placeholder="ex: sport, sommeil, travail…"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={switchLoading}
+                    />
+                    {(() => {
+                      const normalized = normalizeTaskTag(pendingTag);
+                      const canCreate =
+                        Boolean(normalized) &&
+                        !allTaskTags.includes(String(normalized));
+                      if (!canCreate) return null;
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => addCustomTaskTag(pendingTag)}
+                          disabled={switchLoading}
+                          className="shrink-0 px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Créer ce tag"
+                        >
+                          Créer
+                        </button>
+                      );
+                    })()}
+                  </div>
+                  <datalist id="tmt-task-tags-switch">
+                    {allTaskTags.map((t) => (
+                      <option key={t} value={t} />
+                    ))}
+                  </datalist>
+                  {!normalizeTaskTag(pendingTag) && (
+                    <p className="text-xs text-red-600">
+                      Le tag est obligatoire.
+                    </p>
+                  )}
                 </div>
-                <datalist id="tmt-task-tags-switch">
-                  {allTaskTags.map((t) => (
-                    <option key={t} value={t} />
-                  ))}
-                </datalist>
-                {!normalizeTaskTag(pendingTag) && (
-                  <p className="text-xs text-red-600">
-                    Le tag est obligatoire.
-                  </p>
-                )}
+              </div>
+              <div className="p-5 border-t border-gray-200 bg-white/70 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSwitchOpen(false);
+                    setPendingTaskName("");
+                    setPendingTag("");
+                    setTaskText(currentTaskName || previousTaskName);
+                  }}
+                  disabled={switchLoading}
+                  className="px-4 py-2 text-gray-800 bg-white/70 border border-gray-200 rounded-2xl hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmSwitchTask}
+                  disabled={switchLoading || !normalizeTaskTag(pendingTag)}
+                  className="px-4 py-2 bg-gray-900 text-white rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  {switchLoading ? "..." : "Valider"}
+                </button>
               </div>
             </div>
-            <div className="p-5 border-t border-gray-200 bg-white/70 flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setSwitchOpen(false);
-                  setPendingTaskName("");
-                  setPendingTag("");
-                  setTaskText(currentTaskName || previousTaskName);
-                }}
-                disabled={switchLoading}
-                className="px-4 py-2 text-gray-800 bg-white/70 border border-gray-200 rounded-2xl hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                Annuler
-              </button>
-              <button
-                type="button"
-                onClick={confirmSwitchTask}
-                disabled={switchLoading || !normalizeTaskTag(pendingTag)}
-                className="px-4 py-2 bg-gray-900 text-white rounded-2xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                {switchLoading ? "..." : "Valider"}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </div>
   );
