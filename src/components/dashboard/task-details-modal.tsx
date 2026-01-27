@@ -163,49 +163,56 @@ export function TaskDetailsModal({
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
 
       <div
-        className="relative bg-white rounded-md shadow-xl w-full max-w-2xl overflow-hidden"
+        className="relative max-w-2xl w-full rounded-3xl bg-white/80 shadow-[0_22px_70px_rgba(15,23,42,0.18)] border border-white/60 backdrop-blur-xl overflow-hidden"
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center justify-between p-5 border-b border-gray-200">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-4 px-6 py-5 border-b border-white/60 bg-white/60 backdrop-blur-sm">
           <div className="min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-sky-500 mb-1">
+              {mode === "create" ? "Nouvelle tâche" : "Tâche en cours"}
+            </p>
+            <h3 className="text-lg font-semibold text-slate-900 truncate">
               {title}
             </h3>
-            <p className="text-sm text-gray-500 truncate">
+            <p className="mt-0.5 text-sm text-slate-500 line-clamp-1">
               {mode === "create"
-                ? "Renseigne les infos puis crée la tâche."
-                : "Modifie les infos de la tâche puis enregistre."}
+                ? "Décris ce que tu veux planifier, puis enregistre."
+                : "Ajuste les informations de ta tâche, puis enregistre."}
             </p>
           </div>
           {!isSaving && (
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 rounded-md p-1"
+              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/80 p-1.5 text-slate-400 shadow-sm transition hover:text-slate-600 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-white"
               aria-label="Fermer"
             >
-              <HiX className="w-5 h-5" />
+              <HiX className="h-5 w-5" />
             </button>
           )}
         </div>
 
-        <div className="p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Nom</label>
+        {/* Body */}
+        <div className="px-6 py-5 bg-slate-50/60">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                Nom
+              </label>
               <input
                 value={String(draft.name ?? "")}
                 onChange={(e) =>
                   setDraft((p) => ({ ...p, name: e.target.value }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-slate-200/80 bg-white/80 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none ring-0 transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 placeholder:text-slate-400"
                 placeholder="Nom de la tâche"
                 disabled={isSaving}
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Tag {mode === "create" ? "*" : ""}
               </label>
               <div className="flex items-center gap-2">
@@ -218,7 +225,7 @@ export function TaskDetailsModal({
                       tag: e.target.value ? e.target.value : null,
                     }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-xl border border-slate-200/80 bg-white/80 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none ring-0 transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 placeholder:text-slate-400"
                   placeholder="ex: sport, sommeil, travail…"
                   disabled={isSaving}
                 />
@@ -227,7 +234,7 @@ export function TaskDetailsModal({
                     type="button"
                     onClick={addCustomTag}
                     disabled={isSaving}
-                    className="shrink-0 px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="shrink-0 rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-xs font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                     title="Créer ce tag"
                   >
                     Créer
@@ -240,12 +247,12 @@ export function TaskDetailsModal({
                 ))}
               </datalist>
               {mode === "create" && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500">
                   Choisis un tag (obligatoire) pour tes futures stats.
                 </p>
               )}
               {canCreateTag && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500">
                   Ce tag n’existe pas encore. Clique sur “Créer” pour l’ajouter à
                   ta liste.
                 </p>
@@ -255,8 +262,8 @@ export function TaskDetailsModal({
               )}
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Date de début
               </label>
               <input
@@ -268,13 +275,13 @@ export function TaskDetailsModal({
                     start_date: e.target.value || null,
                   }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-slate-200/80 bg-white/80 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none ring-0 transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 placeholder:text-slate-400"
                 disabled={isSaving}
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Date de fin
               </label>
               <input
@@ -286,13 +293,13 @@ export function TaskDetailsModal({
                     end_date: e.target.value || null,
                   }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-slate-200/80 bg-white/80 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none ring-0 transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 placeholder:text-slate-400"
                 disabled={isSaving}
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Début (date/heure)
               </label>
               <input
@@ -304,13 +311,13 @@ export function TaskDetailsModal({
                     start_time: fromDateTimeLocalValue(e.target.value),
                   }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-slate-200/80 bg-white/80 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none ring-0 transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 placeholder:text-slate-400"
                 disabled={isSaving}
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Fin (date/heure)
               </label>
               <input
@@ -322,14 +329,14 @@ export function TaskDetailsModal({
                     finish_time: fromDateTimeLocalValue(e.target.value),
                   }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-slate-200/80 bg-white/80 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none ring-0 transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100 placeholder:text-slate-400"
                 disabled={isSaving}
               />
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-4">
-            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+          <div className="mt-5 flex flex-wrap gap-4">
+            <label className="inline-flex items-center gap-2 text-sm text-slate-700">
               <input
                 type="checkbox"
                 checked={Boolean(draft.is_planned)}
@@ -337,11 +344,12 @@ export function TaskDetailsModal({
                   setDraft((p) => ({ ...p, is_planned: e.target.checked }))
                 }
                 disabled={isSaving}
+                className="h-4 w-4 rounded border-slate-300 text-sky-500 focus:ring-sky-400"
               />
               Tâche programmée
             </label>
 
-            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <label className="inline-flex items-center gap-2 text-sm text-slate-700">
               <input
                 type="checkbox"
                 checked={Boolean(draft.is_recurring)}
@@ -349,17 +357,19 @@ export function TaskDetailsModal({
                   setDraft((p) => ({ ...p, is_recurring: e.target.checked }))
                 }
                 disabled={isSaving}
+                className="h-4 w-4 rounded border-slate-300 text-sky-500 focus:ring-sky-400"
               />
               Récurrente
             </label>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 p-5 border-t border-gray-200 bg-gray-50">
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-white/60 bg-white/70 backdrop-blur-sm">
           <button
             onClick={onClose}
             disabled={isSaving}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             Annuler
           </button>
@@ -368,14 +378,14 @@ export function TaskDetailsModal({
             disabled={
               isSaving || !String(draft.name ?? "").trim() || isTagMissing
             }
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center justify-center rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSaving
               ? mode === "create"
                 ? "Création..."
                 : "Enregistrement..."
               : mode === "create"
-                ? "Créer"
+                ? "Créer la tâche"
                 : "Enregistrer"}
           </button>
         </div>

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Link } from "@/lib/datatype";
 import { HiPencil, HiTrash, HiPlus } from "react-icons/hi";
+import { Link } from "@/lib/datatype";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 
 type SocialNetworksSectionProps = {
   userLinks: Link[];
@@ -42,6 +43,8 @@ export function SocialNetworksSection({
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [linkIdToDelete, setLinkIdToDelete] = useState<string | null>(null);
 
   const handleAddLink = async () => {
     if (!formData.networkName || !formData.networkLink) {
@@ -127,16 +130,19 @@ export function SocialNetworksSection({
     }
   };
 
-  const handleDeleteLink = async (linkId: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce lien ?")) {
-      return;
-    }
+  const handleDeleteLink = (linkId: string) => {
+    setLinkIdToDelete(linkId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteLink = async () => {
+    if (!linkIdToDelete) return;
 
     setLoading(true);
     setMessage(null);
 
     try {
-      const response = await fetch(`/api/links/delete?linkId=${linkId}`, {
+      const response = await fetch(`/api/links/delete?linkId=${linkIdToDelete}`, {
         method: "DELETE",
       });
 
@@ -145,7 +151,7 @@ export function SocialNetworksSection({
         throw new Error(result.error || "Échec de la suppression du lien");
       }
 
-      onLinkDeleted(linkId);
+      onLinkDeleted(linkIdToDelete);
       setMessage({ type: "success", text: "Lien supprimé avec succès" });
 
       router.refresh();
@@ -153,6 +159,8 @@ export function SocialNetworksSection({
       setMessage({ type: "error", text: error.message });
     } finally {
       setLoading(false);
+      setDeleteModalOpen(false);
+      setLinkIdToDelete(null);
     }
   };
 
@@ -189,7 +197,7 @@ export function SocialNetworksSection({
       )}
 
       {/* Social Networks */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="rounded-3xl border border-white/60 bg-white/70 p-6 shadow-[0_18px_55px_rgba(15,23,42,0.12)] backdrop-blur-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">Réseaux sociaux</h2>
           <button
@@ -396,6 +404,22 @@ export function SocialNetworksSection({
           )}
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          if (loading) return;
+          setDeleteModalOpen(false);
+          setLinkIdToDelete(null);
+        }}
+        onConfirm={handleConfirmDeleteLink}
+        title="Supprimer le lien"
+        message="Es-tu sûr de vouloir supprimer ce lien social ? Il disparaîtra de ta page publique."
+        confirmText="Supprimer le lien"
+        cancelText="Annuler"
+        variant="danger"
+        isLoading={loading}
+      />
     </div>
   );
 }
