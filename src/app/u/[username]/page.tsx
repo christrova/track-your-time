@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { PublicProfileHeader } from "@/components/public/public-profile-header";
 import type { Task } from "@/lib/datatype";
 import { parseDbTimestamp } from "@/lib/time";
+import { getThemeById } from "@/lib/banner-themes";
 
 function finishedAtForTask(t: Task) {
   if (t.finish_time) return parseDbTimestamp(t.finish_time);
@@ -91,10 +92,23 @@ export default async function DashboardPage({
     userData.user_id,
   );
   const { data: userTasks } = await getUserTasks(supabase, userData.user_id);
+  const theme = getThemeById((userData as any).banner_color_id);
 
   if (!userData.public_mode) {
     return (
-      <div className="min-h-screen bg-linear-to-b from-gray-50 via-white to-gray-50 p-6 lg:p-10">
+      <div className="relative min-h-screen bg-linear-to-b from-white/60 via-white/30 to-white/60 p-6 lg:p-10">
+        {/* theme-based blurred background (like landing, derived from banner color) */}
+        <div
+          className="pointer-events-none absolute -top-28 -left-28 h-80 w-80 rounded-full blur-3xl opacity-25 -z-10"
+          style={{ backgroundImage: theme.gradient }}
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -bottom-32 -right-32 h-104 w-104 rounded-full blur-3xl opacity-20 -z-10"
+          style={{ backgroundImage: theme.gradient }}
+          aria-hidden="true"
+        />
+
         <div className="max-w-3xl mx-auto">
           <div className="rounded-3xl border border-gray-200 bg-white/90 backdrop-blur overflow-hidden shadow-sm">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -162,7 +176,19 @@ export default async function DashboardPage({
   });
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-50 via-white to-gray-50 p-6 lg:p-10">
+    <div className="relative min-h-screen p-6 lg:p-10">
+      {/* theme-based blurred background (like landing, derived from banner color) */}
+      <div
+        className="pointer-events-none absolute -top-28 -left-28 h-80 w-80 rounded-full blur-3xl opacity-25 -z-10"
+        style={{ backgroundImage: theme.gradient }}
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -bottom-32 -right-32 h-104 w-104 rounded-full blur-3xl opacity-20 -z-10"
+        style={{ backgroundImage: theme.gradient }}
+        aria-hidden="true"
+      />
+
       <div className="max-w-3xl mx-auto">
         <div className="rounded-3xl border border-gray-200 bg-white/90 backdrop-blur overflow-hidden shadow-sm">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">

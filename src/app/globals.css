@@ -12,21 +12,42 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 96px;
 }
 
 body {
-  background: var(--background);
+  /* Background is provided by fixed blurred layers below */
+  background: transparent;
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Full-screen blurred background (glass) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -80px;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(700px 500px at 10% 10%, rgba(217, 70, 239, 0.22), transparent 60%),
+    radial-gradient(800px 600px at 90% 20%, rgba(99, 102, 241, 0.18), transparent 60%),
+    radial-gradient(900px 700px at 70% 90%, rgba(236, 72, 153, 0.16), transparent 60%),
+    linear-gradient(180deg, rgba(253, 242, 248, 1) 0%, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 1) 100%);
+  filter: blur(42px);
+  transform: translateZ(0);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
 }

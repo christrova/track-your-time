@@ -118,19 +118,34 @@ export default async function Home() {
 
           <section className="lg:col-span-6">
             <div className="relative">
-              <div className="absolute -inset-6 bg-linear-to-r from-fuchsia-300/40 via-pink-300/35 to-indigo-300/40 blur-2xl rounded-[2.5rem]" />
-              <div className="relative overflow-hidden rounded-[2.5rem] border border-gray-200 bg-white/70 backdrop-blur shadow-sm">
-                <div className="p-6 sm:p-8">
+              {/* premium glow */}
+              <div className="pointer-events-none absolute -inset-10 rounded-[3rem] bg-linear-to-r from-fuchsia-300/35 via-pink-300/30 to-indigo-300/35 blur-3xl" />
+              <div className="relative overflow-hidden rounded-[2.75rem] border border-gray-200 bg-white/55 backdrop-blur-xl shadow-[0_20px_80px_-50px_rgba(17,24,39,0.35)]">
+                {/* subtle highlight */}
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-white/55 via-white/20 to-transparent" />
+
+                <div className="relative px-6 pb-6 pt-6 sm:px-8 sm:pb-8">
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm">
-                      <span className="inline-block w-2 h-2 rounded-full bg-blue-600" />
-                      En ligne
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-rose-400/90" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-300/90" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-300/90" />
+                    </div>
+                    <span className="text-xs font-semibold text-gray-600">
+                      Profil public
                     </span>
-                    <span className="text-xs text-gray-500">Profil public</span>
                   </div>
 
                   <div className="mt-6">
-                    <p className="max-w-full text-[clamp(1.2rem,4.0vw,2.25rem)] font-extrabold tracking-tight leading-[1.05] text-gray-900">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/70 px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm">
+                        <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+                        Travail
+                      </span>
+                      <span className="text-xs text-gray-500">En ce moment</span>
+                    </div>
+
+                    <p className="mt-5 max-w-full text-[clamp(1.2rem,3.8vw,2.25rem)] font-extrabold tracking-tight leading-[1.05] text-gray-900">
                       Je suis en train d&apos;
                       <TypingWord
                         text="écrire un livre"
@@ -138,14 +153,14 @@ export default async function Home() {
                         className="bg-clip-text text-transparent bg-linear-to-r from-fuchsia-600 to-indigo-600"
                       />
                     </p>
-                    <p className="mt-3 text-sm text-gray-600">
-                      Une phrase claire qui décrit ce que tu fais maintenant.
-                      Compréhensible en une seconde.
+                    <p className="mt-3 text-sm text-gray-600 max-w-lg">
+                      Une phrase claire, lisible, qui dit exactement ce que tu
+                      fais.
                     </p>
                   </div>
 
                   <div className="mt-7 grid grid-cols-1 gap-3">
-                    <div className="rounded-2xl border border-gray-200 bg-white/80 px-4 py-4">
+                    <div className="rounded-3xl border border-gray-200 bg-white/70 p-4 shadow-sm">
                       <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                         Activités récentes
                       </p>
@@ -169,7 +184,7 @@ export default async function Home() {
                         ].map((t) => (
                           <div
                             key={t.name}
-                            className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-3"
+                            className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white/65 px-4 py-3"
                           >
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-gray-900 truncate">
@@ -182,19 +197,25 @@ export default async function Home() {
                                 </span>
                               </p>
                             </div>
-                            <p className="shrink-0 text-xs font-medium text-gray-500">
+                            <p className="shrink-0 text-xs font-semibold text-gray-500">
                               {t.when}
                             </p>
                           </div>
                         ))}
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          État vide: Aucune activité récente.
+                        </span>
+                        <span className="text-xs text-gray-400">lecture seule</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* decorative stripes like the reference */}
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 opacity-70">
-                  <div className="absolute inset-0 bg-linear-to-l from-white via-white/60 to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-[46%] opacity-70">
+                  <div className="absolute inset-0 bg-linear-to-l from-white via-white/50 to-transparent" />
                   <div className="absolute inset-0 flex">
                     {Array.from({ length: 18 }).map((_, i) => (
                       <div
@@ -204,8 +225,8 @@ export default async function Home() {
                         style={{
                           background:
                             i % 2 === 0
-                              ? "rgba(236,72,153,0.08)"
-                              : "rgba(99,102,241,0.06)",
+                              ? "rgba(236,72,153,0.06)"
+                              : "rgba(99,102,241,0.05)",
                         }}
                       />
                     ))}
