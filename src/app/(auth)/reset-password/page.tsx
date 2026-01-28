@@ -73,16 +73,39 @@ export default function ResetPasswordPage() {
           // Nettoie l'URL (supprime ?code=...) mais conserve le hash (si présent).
           const nextHash = typeof window !== "undefined" ? window.location.hash : "";
           router.replace(`/reset-password${nextHash}`);
+        } else if (typeof window !== "undefined") {
+          // Hash flow (implicit) : certains setups ne détectent pas automatiquement la session depuis l'URL.
+          // On parse le hash et on appelle setSession() explicitement.
+          const raw = window.location.hash.startsWith("#")
+            ? window.location.hash.slice(1)
+            : window.location.hash;
+          const params = new URLSearchParams(raw);
+          const access_token = params.get("access_token");
+          const refresh_token = params.get("refresh_token");
+          const hashError = params.get("error") || params.get("error_code");
+
+          if (hashError) {
+            finishInvalid();
+            return;
+          }
+
+          if (access_token && refresh_token) {
+            const { error: setErr } = await SupabaseClient.auth.setSession({
+              access_token,
+              refresh_token,
+            });
+            if (setErr) {
+              finishInvalid();
+              return;
+            }
+          }
         }
 
-        // Hash flow : force la détection de session depuis l'URL.
+        // Vérifie qu'une session est bien en place
         const { data: { session } } = await SupabaseClient.auth.getSession();
-        if (session) {
-          finishValid();
-          return;
-        }
+        if (session) finishValid();
       } catch {
-        finishInvalid();
+        // On laisse le fallback timer décider (évite faux négatifs).
       }
     })();
 
@@ -94,7 +117,7 @@ export default function ResetPasswordPage() {
           else finishInvalid();
         }
       );
-    }, 2000);
+    }, 4000);
 
     return () => {
       cancelled = true;
