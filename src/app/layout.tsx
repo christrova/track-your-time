@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   title: "En ce moment",
   description:
     "Un dashboard simple pour suivre tes tâches, ton statut (travail/pause/hors ligne) et partager un profil public propre.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createSupabaseServerClientForServerComponent } from "@/app/api/auth/_lib/supabaseserver";
 import { TypingWord } from "@/components/landing/typing-word";
 
@@ -18,9 +19,14 @@ export default async function Home() {
             className="inline-flex shrink-0 items-center gap-2 text-gray-900 font-extrabold tracking-tight"
             aria-label="En ce moment"
           >
-            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-white shadow-sm sm:h-9 sm:w-9">
-              E
-            </span>
+            <Image
+              src="/logo.png"
+              alt="En ce moment"
+              width={36}
+              height={36}
+              className="h-9 w-9 shrink-0 rounded-xl object-cover sm:h-9 sm:w-9"
+              priority
+            />
             <span className="hidden whitespace-nowrap text-base sm:inline sm:text-lg">
               En ce moment
             </span>
