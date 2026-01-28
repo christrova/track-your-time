@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PresenceProvider } from "@/providers/presence-provider";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
-        <PresenceProvider>{children}</PresenceProvider>
+        <PresenceProvider>
+          {children}
+          <Analytics />
+        </PresenceProvider>
       </body>
     </html>
   );
