@@ -9,19 +9,125 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ username: string }> },
 ) {
+  // If these are missing in prod (common on Vercel “Production” env), the query
+  // will fail and we would otherwise render the misleading "Profil non disponible".
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
   const supabase = createSupabaseAdminClient();
   const { username } = await params;
   const usernameParam = String(username || "").trim().toLowerCase();
 
-  const { data: userData } = await supabase
+  const baseBackground = "#020617"; // slate-950
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: 1200,
+            height: 630,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: "80px 96px",
+            backgroundColor: baseBackground,
+            color: "#e5e7eb",
+            fontSize: 40,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 28,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "#9ca3af",
+            }}
+          >
+            En ce moment
+          </div>
+          <div style={{ marginTop: 32, fontWeight: 700 }}>
+            Configuration serveur manquante
+          </div>
+          <div
+            style={{
+              marginTop: 16,
+              fontSize: 24,
+              maxWidth: 860,
+              lineHeight: 1.4,
+              color: "#9ca3af",
+            }}
+          >
+            La route OG nécessite <code>NEXT_PUBLIC_SUPABASE_URL</code> et{" "}
+            <code>SUPABASE_SERVICE_ROLE_KEY</code> côté serveur (env Production).
+          </div>
+        </div>
+      ),
+    );
+  }
+
+  const { data: userData, error: userError } = await supabase
     .from("users")
     .select(
       "user_id, username, firstname, lastname, profession, public_mode",
     )
-    .ilike("username", usernameParam)
+    .eq("username", usernameParam)
     .maybeSingle();
 
-  const baseBackground = "#020617"; // slate-950
+  if (userError) {
+    // Avoid leaking details in the image, but keep a server log for debugging.
+    console.error("OG user lookup failed", {
+      username: usernameParam,
+      message: userError.message,
+      code: (userError as any).code,
+      details: (userError as any).details,
+      hint: (userError as any).hint,
+    });
+
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: 1200,
+            height: 630,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: "80px 96px",
+            backgroundColor: baseBackground,
+            color: "#e5e7eb",
+            fontSize: 40,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 28,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "#9ca3af",
+            }}
+          >
+            En ce moment
+          </div>
+          <div style={{ marginTop: 32, fontWeight: 700 }}>
+            Erreur lors du chargement du profil
+          </div>
+          <div
+            style={{
+              marginTop: 16,
+              fontSize: 24,
+              maxWidth: 860,
+              lineHeight: 1.4,
+              color: "#9ca3af",
+            }}
+          >
+            Impossible de récupérer les données du profil. Vérifie la
+            configuration Supabase (env vars / projet) côté serveur.
+          </div>
+        </div>
+      ),
+    );
+  }
 
   if (!userData || !userData.public_mode) {
     return new ImageResponse(
