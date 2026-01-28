@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { createSupabaseServerClientForServerComponent } from "@/app/api/auth/_lib/supabaseserver";
 import { getUserLinks } from "@/lib/queries/links";
 import { getUserPresence } from "@/lib/queries/presence";
@@ -75,11 +76,67 @@ function computeInitials(input: {
   return (x + y).toUpperCase();
 }
 
+type PageParams = {
+  params: { username: string };
+};
+
+export async function generateMetadata({
+  params,
+}: PageParams): Promise<Metadata> {
+  const supabase = await createSupabaseServerClientForServerComponent();
+  const usernameParam = String(params.username || "").trim();
+
+  const { data: userData } = await getUserDataByUsername(
+    supabase,
+    usernameParam,
+  );
+
+  if (!userData || !userData.public_mode) {
+    return {
+      title: "Profil non disponible – En ce moment",
+      description:
+        "Ce profil n’est pas public ou n’existe pas sur En ce moment.",
+    };
+  }
+
+  const displayName = `${(userData.firstname || "").trim()} ${(userData.lastname || "").trim()}`
+    .trim()
+    .replace(/\s+/g, " ");
+  const niceName = displayName || `@${userData.username}`;
+
+  const { data: presence } = await getUserPresence(supabase, userData.user_id);
+  const statusLabel =
+    presence?.status === "PAUSE"
+      ? "en pause"
+      : presence?.status === "OFFLINE"
+        ? "hors ligne"
+        : "au travail";
+
+  const activity =
+    (presence?.current_activity || "").trim() ||
+    `Découvre ce que ${niceName} fait en ce moment.`;
+
+  const url = `/u/${userData.username}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const ogImage = siteUrl
+    ? `${siteUrl.replace(/\/$/, "")}/api/og/${userData.username}`
+    : undefined;
+
+  return {
+    title: `${niceName} – En ce moment`,
+    description: `${activity} (statut : ${statusLabel}).`,
+    openGraph: {
+      title: `${niceName} – En ce moment`,
+      description: activity,
+      url,
+      images: ogImage ? [ogImage] : undefined,
+    },
+  };
+}
+
 export default async function DashboardPage({
   params,
-}: {
-  params: Promise<{ username: string }>;
-}) {
+}: PageParams) {
   const supabase = await createSupabaseServerClientForServerComponent();
 
   const { username } = await params;
