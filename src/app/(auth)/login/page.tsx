@@ -72,7 +72,17 @@ export default function LoginPage() {
       router.replace("/dashboard");
       router.refresh();
     } catch (err: any) {
-      setError(err.message || "Une erreur est survenue.");
+      const rawMessage = err?.message || "Une erreur est survenue.";
+      const normalized = typeof rawMessage === "string" ? rawMessage.toLowerCase() : "";
+
+      let friendlyMessage = rawMessage;
+
+      if (normalized.includes("email not confirmed")) {
+        friendlyMessage =
+          "Votre adresse email n'est pas encore confirmée. Veuillez cliquer sur le lien de confirmation envoyé lors de votre inscription (pensez à vérifier vos spams).";
+      }
+
+      setError(friendlyMessage);
     } finally {
       setLoading(false);
     }
@@ -139,12 +149,20 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-1">
-          <label
-            className="text-sm font-medium text-gray-700"
-            htmlFor="password"
-          >
-            Mot de passe
-          </label>
+          <div className="flex items-center justify-between">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="password"
+            >
+              Mot de passe
+            </label>
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-blue-600 hover:underline"
+            >
+              Mot de passe oublié ?
+            </Link>
+          </div>
           <div className="relative">
             <input
               id="password"
