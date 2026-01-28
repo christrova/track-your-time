@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# a testing route (do not use)
+src/app/delete_user/
+
 # next.js
 /.next/
 /out/
@@ -39,3 +42,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+next-env.d.ts
+
