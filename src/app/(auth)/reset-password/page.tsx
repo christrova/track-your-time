@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { SupabaseClient } from "@/lib/supabaseclient";
 import { AuthShell } from "@/components/auth/auth-shell";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +38,10 @@ export default function ResetPasswordPage() {
     };
 
     const hash = typeof window !== "undefined" ? window.location.hash : "";
-    const code = searchParams.get("code");
+    const code =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("code")
+        : null;
     const looksLikeRecoveryLink =
       Boolean(code) || hash.includes("access_token=") || hash.includes("type=recovery");
 
@@ -99,7 +101,7 @@ export default function ResetPasswordPage() {
       subscription.unsubscribe();
       clearTimeout(timer);
     };
-  }, [router, searchParams]);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
