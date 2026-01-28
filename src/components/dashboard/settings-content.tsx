@@ -87,8 +87,8 @@ export function SettingsContent() {
         activeSection={activeSection}
         onSectionChange={handleSectionChange}
       />
-      <main className="flex-1 overflow-auto bg-white">
-        <div className="max-w-4xl mx-auto p-8">
+      <main className="flex-1 overflow-auto bg-white/90">
+        <div className="max-w-4xl mx-auto px-4 py-6 sm:p-8">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">

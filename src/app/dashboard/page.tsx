@@ -656,24 +656,26 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen p-6 lg:p-10">
+    <div className="min-h-screen px-4 py-6 lg:px-10 lg:py-10">
       <div className="mx-auto max-w-6xl">
-        <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
               Tableau de bord
             </h1>
             <p className="mt-1 text-gray-600">
               Une vue simple, moderne et lisible de ton activité.
             </p>
           </div>
-          <Link
-            href="/dashboard/settings"
-            className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur px-5 py-2 text-sm font-semibold text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition"
-          >
-            <HiPencil className="text-lg" />
-            Paramètres
-          </Link>
+          <div className="flex sm:items-start sm:justify-end">
+            <Link
+              href="/dashboard/settings"
+              className="inline-flex items-center gap-2 rounded-full bg-white/80 backdrop-blur px-4 py-2 text-xs sm:text-sm font-semibold text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition"
+            >
+              <HiPencil className="text-base sm:text-lg" />
+              Paramètres
+            </Link>
+          </div>
         </div>
 
         {error && (

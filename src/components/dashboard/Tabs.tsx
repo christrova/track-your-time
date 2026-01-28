@@ -32,25 +32,25 @@ export const SideBar = () => {
   };
 
   return (
-    <nav className="w-72 shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-white/30 bg-white/40 backdrop-blur-xl">
-      <div className="p-6">
+    <nav className="w-full md:w-72 md:shrink-0 md:sticky md:top-0 md:h-screen overflow-y-auto border-b md:border-b-0 md:border-r border-white/30 bg-white/70 backdrop-blur-xl">
+      <div className="px-4 py-4 sm:px-6 sm:py-6">
         <div className="pb-6 border-b border-gray-200/60">
           <div className="flex items-center gap-3">
-            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-gray-900 text-white shadow-sm">
+            <div className="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-gray-900 text-white shadow-sm sm:w-10 sm:h-10">
               E
             </div>
             <div className="min-w-0">
-              <p className="text-base font-extrabold tracking-tight text-gray-900 leading-tight">
+              <p className="text-sm sm:text-base font-extrabold tracking-tight text-gray-900 leading-tight">
                 En ce moment
               </p>
-              <p className="text-sm text-gray-600 truncate">
+              <p className="text-xs sm:text-sm text-gray-600 truncate">
                 @{userData?.username || "—"}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-1 mt-5">
+        <div className="space-y-1 mt-4">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = isActive(tab.href, tab.exact);
@@ -59,17 +59,17 @@ export const SideBar = () => {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`
-                  flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200
+                className={`flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-all duration-200
                   ${
                     active
                       ? "bg-white/80 text-gray-900 shadow-sm ring-1 ring-gray-200 font-semibold"
                       : "text-gray-700 hover:text-gray-900 hover:bg-white/60"
-                  }
-                `}
+                  }`}
               >
-                <Icon className="text-xl shrink-0" />
-                <span className="text-sm font-medium">{tab.name}</span>
+                <Icon className="text-lg sm:text-xl shrink-0" />
+                <span className="text-xs sm:text-sm font-medium">
+                  {tab.name}
+                </span>
               </Link>
             );
           })}

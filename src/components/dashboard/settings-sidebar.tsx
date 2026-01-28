@@ -32,10 +32,10 @@ export function SettingsSidebar({
   onSectionChange,
 }: SettingsSidebarProps) {
   return (
-    <nav className="w-full bg-white">
-      <div className="max-w-4xl mx-auto px-8 pt-6">
-        <div className="h-20 flex items-center pb-6 border-b border-gray-200">
-          <div className="flex gap-1">
+    <nav className="w-full bg-white/90 backdrop-blur">
+      <div className="max-w-4xl mx-auto px-4 pt-4 sm:px-8 sm:pt-6">
+        <div className="flex items-center pb-4 sm:pb-6 border-b border-gray-200">
+          <div className="flex flex-wrap gap-2 sm:flex-nowrap sm:gap-1 overflow-x-auto">
             {sections.map((section) => {
               const Icon = section.icon;
               const isActive = activeSection === section.id;
@@ -45,7 +45,7 @@ export function SettingsSidebar({
                   key={section.id}
                   onClick={() => onSectionChange(section.id)}
                   className={`
-                    flex items-center gap-2 px-6 py-4 border-b-2 transition-all duration-200
+                    flex items-center gap-2 px-3 py-2 sm:px-6 sm:py-4 border-b-2 transition-all duration-200 whitespace-nowrap
                     ${
                       isActive
                         ? "border-blue-600 text-blue-600 font-semibold"
@@ -54,7 +54,7 @@ export function SettingsSidebar({
                   `}
                 >
                   <Icon className="text-lg" />
-                  <span className="text-sm">{section.name}</span>
+                  <span className="text-xs sm:text-sm">{section.name}</span>
                 </button>
               );
             })}
