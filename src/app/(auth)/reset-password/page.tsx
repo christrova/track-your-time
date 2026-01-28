@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { SupabaseClient } from "@/lib/supabaseclient";
 import { AuthShell } from "@/components/auth/auth-shell";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,35 +24,82 @@ export default function ResetPasswordPage() {
   }>({});
 
   useEffect(() => {
-    const hash = typeof window !== "undefined" ? window.location.hash : "";
-    const isRecovery = hash.includes("type=recovery");
+    let cancelled = false;
 
-    if (!isRecovery) {
+    const finishValid = () => {
+      if (cancelled) return;
+      setInvalidLink(false);
+      setReady(true);
+    };
+
+    const finishInvalid = () => {
+      if (cancelled) return;
       setInvalidLink(true);
       setReady(true);
-      return;
+    };
+
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    const code = searchParams.get("code");
+    const looksLikeRecoveryLink =
+      Boolean(code) || hash.includes("access_token=") || hash.includes("type=recovery");
+
+    if (!looksLikeRecoveryLink) {
+      finishInvalid();
+      return () => {
+        cancelled = true;
+      };
     }
 
     const { data: { subscription } } = SupabaseClient.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
-        if (event === "PASSWORD_RECOVERY" && session) {
-          setReady(true);
+        // Selon le mode (PKCE ou hash), Supabase peut émettre SIGNED_IN ou PASSWORD_RECOVERY.
+        if ((event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") && session) {
+          finishValid();
         }
       }
     );
 
+    (async () => {
+      try {
+        // PKCE flow (query ?code=...) : échange du code contre une session.
+        if (code) {
+          const { error } = await SupabaseClient.auth.exchangeCodeForSession(code);
+          if (error) {
+            finishInvalid();
+            return;
+          }
+          // Nettoie l'URL (supprime ?code=...) mais conserve le hash (si présent).
+          const nextHash = typeof window !== "undefined" ? window.location.hash : "";
+          router.replace(`/reset-password${nextHash}`);
+        }
+
+        // Hash flow : force la détection de session depuis l'URL.
+        const { data: { session } } = await SupabaseClient.auth.getSession();
+        if (session) {
+          finishValid();
+          return;
+        }
+      } catch {
+        finishInvalid();
+      }
+    })();
+
+    // Fallback: si aucun event n'arrive, on re-teste après un court délai.
     const timer = setTimeout(() => {
-      setReady(true);
-      SupabaseClient.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-        if (!session) setInvalidLink(true);
-      });
-    }, 1500);
+      SupabaseClient.auth.getSession().then(
+        ({ data: { session } }: { data: { session: Session | null } }) => {
+          if (session) finishValid();
+          else finishInvalid();
+        }
+      );
+    }, 2000);
 
     return () => {
+      cancelled = true;
       subscription.unsubscribe();
       clearTimeout(timer);
     };
-  }, []);
+  }, [router, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
