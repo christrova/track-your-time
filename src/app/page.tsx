@@ -1,7 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { createSupabaseServerClientForServerComponent } from "@/app/api/auth/_lib/supabaseserver";
 import { TypingWord } from "@/components/landing/typing-word";
+
+export const metadata: Metadata = {
+  title: "En ce moment – Suivi d’activité simple et lisible",
+  description:
+    "En ce moment te permet d’indiquer ce que tu fais maintenant, ton statut (travail, pause ou hors ligne) et de partager une page publique propre – ou de tout garder privé.",
+  openGraph: {
+    title: "En ce moment – Dis ce que tu fais. C’est tout.",
+    description:
+      "Une mini‑app minimaliste pour afficher ton activité actuelle, ton statut et une page publique claire pour ton entourage, tes clients ou ton équipe.",
+  },
+};
 
 export default async function Home() {
   const supabase = await createSupabaseServerClientForServerComponent();
