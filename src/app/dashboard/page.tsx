@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { HiPlus, HiPencil, HiTrash } from "react-icons/hi";
+import { HiPlus, HiPencil, HiTrash, HiLogout } from "react-icons/hi";
 import { useDashboard } from "@/providers/dashboard-provider";
 import type { Link as UserLink, Task } from "@/lib/datatype";
 import { SupabaseClient } from "@/lib/supabaseclient";
@@ -111,6 +111,17 @@ export default function DashboardPage() {
   );
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await SupabaseClient.auth.signOut();
+    } catch (err) {
+      console.error("Erreur lors de la déconnexion", err);
+    } finally {
+      router.replace("/");
+      router.refresh();
+    }
+  };
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -668,13 +679,14 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex sm:items-start sm:justify-end">
-            <Link
-              href="/dashboard/settings"
+            <button
+              type="button"
+              onClick={handleLogout}
               className="inline-flex items-center gap-2 rounded-full bg-white/80 backdrop-blur px-4 py-2 text-xs sm:text-sm font-semibold text-gray-800 ring-1 ring-gray-200 shadow-sm hover:bg-white transition"
             >
-              <HiPencil className="text-base sm:text-lg" />
-              Paramètres
-            </Link>
+              <HiLogout className="text-base sm:text-lg" />
+              Se déconnecter
+            </button>
           </div>
         </div>
 
@@ -881,9 +893,9 @@ export default function DashboardPage() {
                           , remplacé par le nom de ta tâche. Ex. : « Je fais{" "}
                           {"{task}"} » → « Je fais du sport ».
                         </p>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-2 sm:flex-row">
                           <input
-                            className="flex-1 px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
+                            className="w-full flex-1 px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
                             placeholder="ex: Je suis en train de {task}"
                             disabled={activitySaving}
                             value={newPhraseText}
@@ -897,7 +909,7 @@ export default function DashboardPage() {
                           />
                           <button
                             onClick={addCustomPhrase}
-                            className="px-3 py-2 rounded-md border border-gray-200 text-gray-800 hover:bg-gray-50"
+                            className="w-full sm:w-auto px-3 py-2 rounded-md border border-gray-200 text-gray-800 hover:bg-gray-50 text-sm font-semibold"
                             disabled={activitySaving}
                           >
                             Ajouter
