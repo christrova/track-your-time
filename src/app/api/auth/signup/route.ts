@@ -2,9 +2,8 @@ import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "../_lib/supabaseserver";
 
-const supabase = createSupabaseAdminClient();
-
 export async function POST(req: Request) {
+  const supabase = createSupabaseAdminClient();
   const { email, password, username } = await req.json();
 
   const { data: existingAuthUser } = await supabase
