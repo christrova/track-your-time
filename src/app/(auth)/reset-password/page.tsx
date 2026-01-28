@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { SupabaseClient } from "@/lib/supabaseclient";
 import { AuthShell } from "@/components/auth/auth-shell";
 
@@ -32,7 +33,7 @@ export default function ResetPasswordPage() {
     }
 
     const { data: { subscription } } = SupabaseClient.auth.onAuthStateChange(
-      (event, session) => {
+      (event: AuthChangeEvent, session: Session | null) => {
         if (event === "PASSWORD_RECOVERY" && session) {
           setReady(true);
         }
@@ -41,7 +42,7 @@ export default function ResetPasswordPage() {
 
     const timer = setTimeout(() => {
       setReady(true);
-      SupabaseClient.auth.getSession().then(({ data: { session } }) => {
+      SupabaseClient.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
         if (!session) setInvalidLink(true);
       });
     }, 1500);
