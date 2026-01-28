@@ -2,6 +2,9 @@ import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "../_lib/supabaseserver";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export async function POST(req: Request) {
   const supabase = createSupabaseAdminClient();
   const { email, password, username } = await req.json();
@@ -56,6 +59,9 @@ export async function POST(req: Request) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      emailRedirectTo: `${siteUrl}/login`,
+    },
   });
 
   if (error) {
