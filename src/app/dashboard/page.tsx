@@ -13,6 +13,7 @@ import { parseDbTimestamp } from "@/lib/time";
 import { TaskDetailsModal } from "@/components/dashboard/task-details-modal";
 import { ProfileHeader } from "@/components/dashboard/profile-header";
 import { PresenceStatusSelector } from "@/components/dashboard/presence-status-selector";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 
 const DEFAULT_PHRASES = [
   {
@@ -24,6 +25,9 @@ const DEFAULT_PHRASES = [
   { id: "p3", label: "Je fais {task}", category: "action" as const },
   { id: "p4", label: "Je suis sur {task}", category: "projet" as const },
 ];
+
+const PAUSE_TASK_NAME = "Pause";
+const PAUSE_TASK_TAG = "pause";
 
 const KNOWN_TASKS = [
   "Coder",
@@ -140,6 +144,9 @@ export default function DashboardPage() {
   const [pendingTag, setPendingTag] = useState("");
   const [previousTaskName, setPreviousTaskName] = useState("");
   const [customTaskTags, setCustomTaskTags] = useState<string[]>([]);
+
+  const [pauseConfirmOpen, setPauseConfirmOpen] = useState(false);
+  const [pauseConfirmLoading, setPauseConfirmLoading] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -496,10 +503,97 @@ export default function DashboardPage() {
     }
   };
 
+  const confirmPauseAndCloseTask = async () => {
+    if (!userId) return;
+    setError(null);
+    setPauseConfirmLoading(true);
+    const now = new Date().toISOString();
+    try {
+      if (currentTask) {
+        const { data: finished, error: finishErr } = await updateTask(
+          SupabaseClient,
+          userId,
+          currentTask.id,
+          { finish_time: now, is_current: false },
+        );
+        if (finishErr) throw new Error(finishErr.message);
+        if (finished) {
+          setTasks((prev) =>
+            prev.map((t) => (t.id === finished.id ? (finished as Task) : t)),
+          );
+        }
+      }
+      const res = await fetch("/api/presence/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "PAUSE",
+          current_activity: "Je fais une pause",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(data?.error || "Impossible de mettre à jour.");
+
+      const { data: pauseTask, error: createPauseErr } = await createTask(
+        SupabaseClient,
+        userId,
+        {
+          name: PAUSE_TASK_NAME,
+          tag: PAUSE_TASK_TAG,
+          start_time: now,
+          is_current: false,
+          is_planned: false,
+          is_recurring: false,
+        },
+      );
+      if (createPauseErr) throw new Error(createPauseErr.message);
+      if (pauseTask) {
+        setTasks((prev) => [pauseTask as Task, ...prev]);
+      }
+
+      setPresenceStatus("PAUSE");
+      setTaskText("");
+      setPauseConfirmOpen(false);
+      router.refresh();
+    } catch (e: any) {
+      setError(e?.message || "Impossible de passer en pause.");
+    } finally {
+      setPauseConfirmLoading(false);
+    }
+  };
+
   const updateStatus = async (next: "WORKING" | "PAUSE" | "OFFLINE") => {
+    if (next === "PAUSE") {
+      setPauseConfirmOpen(true);
+      return;
+    }
     setError(null);
     setPresenceStatus(next);
+    const now = new Date().toISOString();
     try {
+      if (presenceStatus === "PAUSE" && userId) {
+        const openPauseTask = tasks.find(
+          (t) =>
+            t.name === PAUSE_TASK_NAME &&
+            t.tag === PAUSE_TASK_TAG &&
+            !t.finish_time,
+        );
+        if (openPauseTask) {
+          const { data: updated, error: finishErr } = await updateTask(
+            SupabaseClient,
+            userId!,
+            openPauseTask.id,
+            { finish_time: now },
+          );
+          if (finishErr) throw new Error(finishErr.message);
+          if (updated) {
+            setTasks((prev) =>
+              prev.map((t) => (t.id === updated.id ? (updated as Task) : t)),
+            );
+          }
+        }
+      }
       const res = await fetch("/api/presence/update", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -755,7 +849,13 @@ export default function DashboardPage() {
                       onChange={updateStatus}
                     />
 
-                    <div className="flex items-center justify-center gap-4">
+                    <div
+                      className={`flex flex-wrap items-center justify-center gap-3 transition ${
+                        presenceStatus === "PAUSE"
+                          ? "opacity-50 pointer-events-none"
+                          : ""
+                      }`}
+                    >
                       <button
                         onClick={() => setActivityOpen((v) => !v)}
                         className="p-2 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur text-gray-800 shadow-sm hover:bg-white transition"
@@ -764,7 +864,6 @@ export default function DashboardPage() {
                       >
                         <HiPencil className="text-xl" />
                       </button>
-
                       {(() => {
                         const [before, after] =
                           currentPhrase.label.split("{task}");
@@ -777,21 +876,15 @@ export default function DashboardPage() {
                               onChange={(e) => setTaskText(e.target.value)}
                               placeholder="tâche"
                               className="w-auto bg-transparent border-b border-dashed border-gray-400 focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
-                              style={{ width: `${sizeCh}ch`, maxWidth: "70vw" }}
+                              style={{
+                                width: `${sizeCh}ch`,
+                                maxWidth: "70vw",
+                              }}
                               disabled={activitySaving}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                   e.preventDefault();
-                                  const nextName = taskText.trim();
-                                  if (
-                                    nextName &&
-                                    nextName !== currentTaskName
-                                  ) {
-                                    setPreviousTaskName(currentTaskName);
-                                    setPendingTaskName(nextName);
-                                    setPendingTag("");
-                                    setSwitchOpen(true);
-                                  }
+                                  saveCurrentActivity();
                                 }
                               }}
                               onBlur={() => {
@@ -808,11 +901,24 @@ export default function DashboardPage() {
                           </div>
                         );
                       })()}
+                      {presenceStatus !== "PAUSE" &&
+                        currentTask &&
+                        taskText.trim() !== "" &&
+                        taskText.trim() !== currentTaskName && (
+                          <button
+                            type="button"
+                            onClick={() => saveCurrentActivity()}
+                            disabled={activitySaving}
+                            className="shrink-0 px-4 py-2 rounded-2xl bg-green-600 hover:bg-green-700 text-white text-sm font-semibold shadow-sm disabled:opacity-50 transition"
+                          >
+                            {activitySaving ? "..." : "Valider"}
+                          </button>
+                        )}
                     </div>
                   </div>
 
-                  {/* Phrase picker */}
-                  {activityOpen && (
+                  {/* Phrase picker (hidden when PAUSE) */}
+                  {activityOpen && presenceStatus !== "PAUSE" && (
                     <div className="mt-4 rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-4 shadow-sm">
                       <div className="flex items-center gap-2">
                         <button
@@ -1005,14 +1111,20 @@ export default function DashboardPage() {
                 </button>
               </label>
             </div>
-            <div className="rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm flex items-center justify-between">
+            <div
+              className={`rounded-3xl border border-gray-200 bg-white/70 backdrop-blur p-5 shadow-sm flex items-center justify-between transition ${
+                presenceStatus === "PAUSE"
+                  ? "opacity-50 pointer-events-none"
+                  : ""
+              }`}
+            >
               <p className="text-sm font-semibold text-gray-900">
                 Ajouter une tâche
               </p>
               <button
                 type="button"
                 onClick={() => setIsCreateTaskOpen(true)}
-                disabled={!userId}
+                disabled={!userId || presenceStatus === "PAUSE"}
                 className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-gray-900 text-white shadow-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 aria-label="Ajouter une tâche"
               >
@@ -1194,6 +1306,18 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        <ConfirmationModal
+          isOpen={pauseConfirmOpen}
+          onClose={() => setPauseConfirmOpen(false)}
+          onConfirm={confirmPauseAndCloseTask}
+          title="Passer en pause ?"
+          message="Cette action ferme la tâche actuelle."
+          confirmText="Valider"
+          cancelText="Annuler"
+          variant="warning"
+          isLoading={pauseConfirmLoading}
+        />
       </div>
     </div>
   );

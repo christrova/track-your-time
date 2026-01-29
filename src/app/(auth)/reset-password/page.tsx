@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import type { AuthChangeEvent, User } from "@supabase/supabase-js";
 import { SupabaseClient } from "@/lib/supabaseclient";
 import { AuthShell } from "@/components/auth/auth-shell";
 
@@ -43,7 +43,9 @@ export default function ResetPasswordPage() {
         ? new URLSearchParams(window.location.search).get("code")
         : null;
     const looksLikeRecoveryLink =
-      Boolean(code) || hash.includes("access_token=") || hash.includes("type=recovery");
+      Boolean(code) ||
+      hash.includes("access_token=") ||
+      hash.includes("type=recovery");
 
     if (!looksLikeRecoveryLink) {
       finishInvalid();
@@ -52,26 +54,32 @@ export default function ResetPasswordPage() {
       };
     }
 
-    const { data: { subscription } } = SupabaseClient.auth.onAuthStateChange(
-      (event: AuthChangeEvent, session: Session | null) => {
-        // Selon le mode (PKCE ou hash), Supabase peut émettre SIGNED_IN ou PASSWORD_RECOVERY.
-        if ((event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") && session) {
-          finishValid();
+    const {
+      data: { subscription },
+    } = SupabaseClient.auth.onAuthStateChange(
+      async (event: AuthChangeEvent) => {
+        if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+          const {
+            data: { user },
+          } = await SupabaseClient.auth.getUser();
+          if (user && !cancelled) finishValid();
         }
-      }
+      },
     );
 
     (async () => {
       try {
         // PKCE flow (query ?code=...) : échange du code contre une session.
         if (code) {
-          const { error } = await SupabaseClient.auth.exchangeCodeForSession(code);
+          const { error } =
+            await SupabaseClient.auth.exchangeCodeForSession(code);
           if (error) {
             finishInvalid();
             return;
           }
           // Nettoie l'URL (supprime ?code=...) mais conserve le hash (si présent).
-          const nextHash = typeof window !== "undefined" ? window.location.hash : "";
+          const nextHash =
+            typeof window !== "undefined" ? window.location.hash : "";
           router.replace(`/reset-password${nextHash}`);
         } else if (typeof window !== "undefined") {
           // Hash flow (implicit) : certains setups ne détectent pas automatiquement la session depuis l'URL.
@@ -101,9 +109,11 @@ export default function ResetPasswordPage() {
           }
         }
 
-        // Vérifie qu'une session est bien en place
-        const { data: { session } } = await SupabaseClient.auth.getSession();
-        if (session) finishValid();
+        // Vérifie qu'un utilisateur est bien authentifié (getUser valide côté serveur Auth)
+        const {
+          data: { user },
+        } = await SupabaseClient.auth.getUser();
+        if (user) finishValid();
       } catch {
         // On laisse le fallback timer décider (évite faux négatifs).
       }
@@ -111,12 +121,12 @@ export default function ResetPasswordPage() {
 
     // Fallback: si aucun event n'arrive, on re-teste après un court délai.
     const timer = setTimeout(() => {
-      SupabaseClient.auth.getSession().then(
-        ({ data: { session } }: { data: { session: Session | null } }) => {
-          if (session) finishValid();
+      SupabaseClient.auth
+        .getUser()
+        .then(({ data: { user } }: { data: { user: User | null } }) => {
+          if (user) finishValid();
           else finishInvalid();
-        }
-      );
+        });
     }, 4000);
 
     return () => {
@@ -134,7 +144,8 @@ export default function ResetPasswordPage() {
     const nextErrors: typeof fieldErrors = {};
     if (!password) nextErrors.password = "Mot de passe requis.";
     else if (password.length < 6)
-      nextErrors.password = "Le mot de passe doit contenir au moins 6 caractères.";
+      nextErrors.password =
+        "Le mot de passe doit contenir au moins 6 caractères.";
     if (password !== confirmPassword)
       nextErrors.confirmPassword = "Les mots de passe ne correspondent pas.";
 
