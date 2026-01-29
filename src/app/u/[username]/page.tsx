@@ -77,14 +77,15 @@ function computeInitials(input: {
 }
 
 type PageParams = {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 };
 
 export async function generateMetadata({
   params,
 }: PageParams): Promise<Metadata> {
   const supabase = await createSupabaseServerClientForServerComponent();
-  const usernameParam = String(params.username || "").trim();
+  const { username } = await params;
+  const usernameParam = String(username ?? "").trim();
 
   const { data: userData } = await getUserDataByUsername(
     supabase,
@@ -99,9 +100,10 @@ export async function generateMetadata({
     };
   }
 
-  const displayName = `${(userData.firstname || "").trim()} ${(userData.lastname || "").trim()}`
-    .trim()
-    .replace(/\s+/g, " ");
+  const displayName =
+    `${(userData.firstname || "").trim()} ${(userData.lastname || "").trim()}`
+      .trim()
+      .replace(/\s+/g, " ");
   const niceName = displayName || `@${userData.username}`;
 
   const { data: presence } = await getUserPresence(supabase, userData.user_id);
@@ -134,9 +136,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function DashboardPage({
-  params,
-}: PageParams) {
+export default async function DashboardPage({ params }: PageParams) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const supabase = await createSupabaseServerClientForServerComponent();
 
   const { username } = await params;
@@ -242,7 +243,7 @@ export default async function DashboardPage({
   });
 
   return (
-    <div className="relative min-h-screen p-4 sm:p-6 lg:p-10 flex flex-col items-center">
+    <div className="relative min-h-screen p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-between">
       <div className="fixed left-4 top-4 z-10 hidden sm:block sm:left-6 sm:top-6 lg:left-10 lg:top-10">
         <Link
           href="/"
@@ -334,7 +335,7 @@ export default async function DashboardPage({
               <div className="mt-8">
                 <div className="w-full rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                   <p className="text-sm font-semibold text-gray-900">
-                    Tâches récentes
+                    Activités récentes
                   </p>
                   <div className="mt-4">
                     {recentTasks.length === 0 ? (
@@ -373,6 +374,12 @@ export default async function DashboardPage({
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex items-center justify-center mt-10 text-gray-600">
+        Propulsé par{" "}
+        <Link href={siteUrl} className="italic ml-1 text-blue-500">
+          @En ce moment
+        </Link>
       </div>
     </div>
   );
