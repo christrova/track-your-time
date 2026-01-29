@@ -16,7 +16,7 @@ export default function NotFound() {
           Page introuvable
         </h1>
         <p className="mt-2 text-sm sm:text-base text-gray-600">
-          Le lien est peut-être cassé, ou la page a été déplacée.
+          Cette page n’existe pas ou n’est plus disponible.
         </p>
 
         <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
@@ -38,4 +38,3 @@ export default function NotFound() {
     </div>
   );
 }
-

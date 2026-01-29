@@ -84,6 +84,7 @@ export async function generateMetadata({
   params,
 }: PageParams): Promise<Metadata> {
   const supabase = await createSupabaseServerClientForServerComponent();
+  await supabase.auth.getUser();
   const { username } = await params;
   const usernameParam = String(username ?? "").trim();
 
@@ -139,6 +140,7 @@ export async function generateMetadata({
 export default async function DashboardPage({ params }: PageParams) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const supabase = await createSupabaseServerClientForServerComponent();
+  await supabase.auth.getUser();
 
   const { username } = await params;
   const { data: userData } = await getUserDataByUsername(supabase, username);
