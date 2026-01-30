@@ -235,8 +235,7 @@ export default async function DashboardPage({ params }: PageParams) {
         return t.created_at || "";
       };
       return endKey(b).localeCompare(endKey(a));
-    })
-    .slice(0, 5);
+    });
 
   const initials = computeInitials({
     firstname: userData.firstname,
