@@ -230,26 +230,6 @@ export default async function Home() {
                     </div>
                   </div>
                 </div>
-
-                {/* decorative stripes like the reference */}
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-[46%] opacity-70">
-                  <div className="absolute inset-0 bg-linear-to-l from-white via-white/50 to-transparent" />
-                  <div className="absolute inset-0 flex">
-                    {Array.from({ length: 18 }).map((_, i) => (
-                      <div
-                        // eslint-disable-next-line react/no-array-index-key
-                        key={i}
-                        className="flex-1"
-                        style={{
-                          background:
-                            i % 2 === 0
-                              ? "rgba(236,72,153,0.06)"
-                              : "rgba(99,102,241,0.05)",
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
           </section>
