@@ -51,9 +51,6 @@ export default async function DashboardLayout({ children }: Props) {
     >
       <div className="relative flex flex-col md:flex-row w-full min-h-screen bg-linear-to-b from-fuchsia-50 via-white to-white">
         {/* soft background blobs (landing-like) */}
-        <div className="pointer-events-none absolute -top-24 -left-24 h-80 w-80 rounded-full bg-linear-to-br from-fuchsia-300/25 via-pink-300/20 to-indigo-300/25 blur-3xl sm:hidden" />
-        <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-linear-to-br from-indigo-300/20 via-pink-300/15 to-fuchsia-300/20 blur-3xl sm:hidden" />
-
         <SideBar />
         <main className="relative flex-1 min-w-0 h-full md:h-screen overflow-y-auto bg-transparent">
           {children}

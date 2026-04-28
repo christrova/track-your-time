@@ -23,7 +23,7 @@ export default async function Home() {
   const isLoggedIn = Boolean(user);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-fuchsia-50 via-white to-white">
+    <div className="min-h-screen bg-linear-to-b from-fuchsia-50 via-white to-white overflow-x-hidden">
       <header className="mx-auto max-w-6xl px-4 pt-4 sm:px-6 sm:pt-6">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           <Link

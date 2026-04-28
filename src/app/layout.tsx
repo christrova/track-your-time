@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Josefin_Sans } from "next/font/google";
+import { Geist_Mono, Josefin_Sans, Fredoka } from "next/font/google";
 import "./globals.css";
 import { PresenceProvider } from "@/providers/presence-provider";
 import { Analytics } from "@vercel/analytics/next";
@@ -7,6 +7,12 @@ import { Analytics } from "@vercel/analytics/next";
 const josefinSans = Josefin_Sans({
   variable: "--app-font-sans",
   subsets: ["latin"],
+});
+
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -31,9 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr-FR">
-      <body
-        className={`${josefinSans.variable} ${geistMono.variable} antialiased font-sans`}
-      >
+      <body className={`${josefinSans.variable} antialiased font-sans`}>
         <PresenceProvider>
           {children}
           <Analytics />

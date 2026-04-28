@@ -761,7 +761,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen px-4 py-6 lg:px-10 lg:py-10">
+    <div className="min-h-screen px-4 py-6 lg:px-10 lg:py-10 overflow-hidden">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
